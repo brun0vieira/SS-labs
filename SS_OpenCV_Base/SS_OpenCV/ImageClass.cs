@@ -340,7 +340,7 @@ namespace SS_OpenCV
                             dataPtr[0] = (byte)Math.Round(blue_updated);
                             dataPtr[1] = (byte)Math.Round(green_updated);
                             dataPtr[2] = (byte)Math.Round(red_updated);
-                            
+
                             // demora mais tempo mas menos codigo ?
                             /*
                             aux[0] = blue * contrast + bright;
@@ -359,11 +359,11 @@ namespace SS_OpenCV
                                 }
                             }
 
-                            dataPtr[0] = (byte)aux[0];
-                            dataPtr[1] = (byte)aux[1];
-                            dataPtr[2] = (byte)aux[2];
+                            dataPtr[0] = (byte)Math.Round(aux[0]);
+                            dataPtr[1] = (byte)Math.Round(aux[1]);
+                            dataPtr[2] = (byte)Math.Round(aux[2]);
                             */
-                            
+
                             // advance the pointer to the next pixel
                             dataPtr += nChan;
                         }

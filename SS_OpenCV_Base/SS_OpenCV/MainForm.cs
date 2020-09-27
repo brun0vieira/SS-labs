@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -163,6 +164,49 @@ namespace SS_OpenCV
             Cursor = Cursors.Default; // normal cursor 
         }
 
+        private void redChannelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            ImageClass.RedChannel(img);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void brightContrastToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            InputBox form_bright = new InputBox("Brightness?");
+            form_bright.ShowDialog();
+
+            int bright = Convert.ToInt32(form_bright.ValueTextBox.Text);
+
+            InputBox form_contrast = new InputBox("Contrast?");
+            form_contrast.ShowDialog();
+
+            double contrast = Convert.ToDouble(form_contrast.ValueTextBox.Text);
+
+            ImageClass.BrightContrast(img, bright, contrast);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor
+        }
     }
 
 

@@ -337,9 +337,9 @@ namespace SS_OpenCV
                                 red_updated = 0;
                             }
                             
-                            dataPtr[0] = (byte)blue_updated;
-                            dataPtr[1] = (byte)green_updated;
-                            dataPtr[2] = (byte)red_updated;
+                            dataPtr[0] = (byte)Math.Round(blue_updated);
+                            dataPtr[1] = (byte)Math.Round(green_updated);
+                            dataPtr[2] = (byte)Math.Round(red_updated);
                             
                             // demora mais tempo mas menos codigo ?
                             /*

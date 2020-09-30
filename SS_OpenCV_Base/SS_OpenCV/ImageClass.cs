@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Emgu.CV.Structure;
 using Emgu.CV;
+using ZedGraph;
+using System.Xml;
+using System.Windows.Forms;
 
 namespace SS_OpenCV
 {
@@ -371,6 +374,57 @@ namespace SS_OpenCV
                         //at the end of the line advance the pointer by the aligment bytes (padding)
                         dataPtr += padding;
                     }
+                }
+            }
+        }
+
+        public static void Translation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, int dx, int dy)
+        { // imgCopy original
+            unsafe
+            {
+                // obter apontador do inicio da imagem
+                MIplImage m = imgCopy.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                
+                MIplImage m_dest = img.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int w = imgCopy.Width;
+                int h = imgCopy.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                byte blue, green, red;
+                int y_orig, x_orig;
+                int padding = m_dest.widthStep - m_dest.nChannels * m_dest.width;
+
+                for (int y = 0; y < h; y++)
+                {
+                    for (int x = 0; x < w; x++)
+                    {
+                        x_orig = x - dx;
+                        y_orig = y - dy;
+
+                        // calcula endereço do pixel no ponto (x,y)
+                        blue = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[0];
+                        green = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[1];
+                        red = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[2];
+
+                        // verifica os limites
+                        if(x_orig < 0 || y_orig < 0 || x_orig > w || y_orig > h)
+                        {
+                            blue = 0;
+                            green = 0;
+                            red = 0;
+                        }
+
+                        dataPtr_dest[0] = blue;
+                        dataPtr_dest[1] = green;
+                        dataPtr_dest[2] = red;
+
+                        dataPtr_dest += nC;
+
+                    }
+                    dataPtr_dest += padding;
                 }
             }
         }

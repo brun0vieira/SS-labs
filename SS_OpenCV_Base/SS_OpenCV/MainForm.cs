@@ -207,6 +207,34 @@ namespace SS_OpenCV
 
             Cursor = Cursors.Default; // normal cursor
         }
+
+        private void translationToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            
+            InputBox form_dx = new InputBox("Dx?");
+            form_dx.ShowDialog();
+
+            int dx = Convert.ToInt32(form_dx.ValueTextBox.Text);
+
+            InputBox form_dy = new InputBox("Dy?");
+            form_dy.ShowDialog();
+
+            int dy = Convert.ToInt32(form_dx.ValueTextBox.Text);
+
+           // ImageClass.Translation(img, imgCopy, dx, dy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor
+
+        }
     }
 
 

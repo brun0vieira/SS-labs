@@ -208,7 +208,7 @@ namespace SS_OpenCV
             Cursor = Cursors.Default; // normal cursor
         }
 
-        private void translationToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void translationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (img == null) // verify if the image is already opened
                 return;
@@ -216,7 +216,7 @@ namespace SS_OpenCV
 
             //copy Undo Image
             imgUndo = img.Copy();
-            
+
             InputBox form_dx = new InputBox("Dx?");
             form_dx.ShowDialog();
 
@@ -227,13 +227,34 @@ namespace SS_OpenCV
 
             int dy = Convert.ToInt32(form_dx.ValueTextBox.Text);
 
-           // ImageClass.Translation(img, imgCopy, dx, dy);
+            ImageClass.Translation(img, imgUndo, dx, dy);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
 
             Cursor = Cursors.Default; // normal cursor
+        }
 
+        private void rotationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            InputBox form = new InputBox("Angle?");
+            form.ShowDialog();
+
+            float angle = (float)Convert.ToDouble(form.ValueTextBox.Text);
+
+            ImageClass.Rotation(img, imgUndo, angle);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor
         }
     }
 

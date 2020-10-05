@@ -344,29 +344,6 @@ namespace SS_OpenCV
                             dataPtr[1] = (byte)Math.Round(green_updated);
                             dataPtr[2] = (byte)Math.Round(red_updated);
 
-                            // demora mais tempo mas menos codigo ?
-                            /*
-                            aux[0] = blue * contrast + bright;
-                            aux[1] = green * contrast + bright;
-                            aux[2] = red * contrast + bright;
-
-                            for (i = 0; i < 3;i++)
-                            {
-                                if (aux[i] < 0)
-                                {
-                                    aux[i] = 0;
-                                }
-                                else if (aux[i] > 255)
-                                {
-                                    aux[i] = 255;
-                                }
-                            }
-
-                            dataPtr[0] = (byte)Math.Round(aux[0]);
-                            dataPtr[1] = (byte)Math.Round(aux[1]);
-                            dataPtr[2] = (byte)Math.Round(aux[2]);
-                            */
-
                             // advance the pointer to the next pixel
                             dataPtr += nChan;
                         }
@@ -379,7 +356,7 @@ namespace SS_OpenCV
         }
 
         public static void Translation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, int dx, int dy)
-        { // imgCopy original
+        { 
             unsafe
             {
                 // obter apontador do inicio da imagem
@@ -389,43 +366,101 @@ namespace SS_OpenCV
                 MIplImage m_dest = img.MIplImage;
                 byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
-                int w = imgCopy.Width;
-                int h = imgCopy.Height;
-                int nC = m.nChannels;
+                int width = imgCopy.Width;
+                int height = imgCopy.Height;
+                int nChannels = m.nChannels;
                 int widthstep = m.widthStep;
                 byte blue, green, red;
                 int y_orig, x_orig;
                 int padding = m_dest.widthStep - m_dest.nChannels * m_dest.width;
 
-                for (int y = 0; y < h; y++)
+                if (nChannels == 3) // RGB
                 {
-                    for (int x = 0; x < w; x++)
+                    for (int y = 0; y < height; y++)
                     {
-                        x_orig = x - dx;
-                        y_orig = y - dy;
-
-                        // calcula endereço do pixel no ponto (x,y)
-                        blue = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[0];
-                        green = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[1];
-                        red = (byte)(dataPtr + y_orig * widthstep + x_orig * nC)[2];
-
-                        // verifica os limites
-                        if(x_orig < 0 || y_orig < 0 || x_orig > w || y_orig > h)
+                        for (int x = 0; x < width; x++)
                         {
-                            blue = 0;
-                            green = 0;
-                            red = 0;
+                            x_orig = x - dx;
+                            y_orig = y - dy;
+
+                            // calcula endereço do pixel no ponto (x,y)
+                            blue = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
+                            green = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
+                            red = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
+
+                            // verifica os limites
+                            if (x_orig < 0 || y_orig < 0 || x_orig > width || y_orig > height)
+                            {
+                                blue = 0;
+                                green = 0;
+                                red = 0;
+                            }
+
+                            dataPtr_dest[0] = blue;
+                            dataPtr_dest[1] = green;
+                            dataPtr_dest[2] = red;
+
+                            dataPtr_dest += nChannels;
+
                         }
-
-                        dataPtr_dest[0] = blue;
-                        dataPtr_dest[1] = green;
-                        dataPtr_dest[2] = red;
-
-                        dataPtr_dest += nC;
-
+                        dataPtr_dest += padding;
                     }
-                    dataPtr_dest += padding;
                 }
+            }
+        }
+
+        public static void Rotation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float angle)
+        {
+            unsafe
+            {
+                // obter apontador do inicio da imagem
+                MIplImage m = imgCopy.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                MIplImage m_dest = img.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = imgCopy.Width;
+                int height = imgCopy.Height;
+                int nChannels = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m_dest.widthStep - m_dest.nChannels * m_dest.width;
+                int x, y;
+                int x_orig, y_orig;
+                double sin = Math.Sin(angle), cos = Math.Cos(angle);
+                byte blue, green, red;
+                double half_width = width / 2.0, half_height = height / 2.0;
+
+                if(nChannels == 3) // RGB   
+                {
+                    for(y = 0; y < height; y++)
+                    {
+                        for(x = 0; x < width; x++)
+                        {
+                            x_orig = (int)Math.Round((x - half_width) * cos - (half_height - y) * sin + half_width);
+                            y_orig = (int)Math.Round(half_height - (x - half_width) * sin - (half_height - y) * cos);
+
+                            blue = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
+                            green = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
+                            red = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
+
+                            if (x_orig < 0 || y_orig < 0 || x_orig > width || y_orig > height)
+                            {
+                                blue = 0;
+                                green = 0;
+                                red = 0;
+                            }
+                    
+                            dataPtr_dest[0] = blue;
+                            dataPtr_dest[1] = green;
+                            dataPtr_dest[2] = red;
+                        
+                            dataPtr_dest += nChannels;
+                        }
+                        dataPtr_dest += padding;
+                    }
+                }
+
             }
         }
     }

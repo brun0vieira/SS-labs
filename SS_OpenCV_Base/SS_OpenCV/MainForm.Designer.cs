@@ -54,7 +54,6 @@
             this.evalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.ImageViewer = new System.Windows.Forms.PictureBox();
-            this.translationToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ImageViewer)).BeginInit();
@@ -76,7 +75,7 @@
             this.evalToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(886, 35);
+            this.menuStrip1.Size = new System.Drawing.Size(886, 33);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -149,8 +148,7 @@
             this.negativeToolStripMenuItem,
             this.grayToolStripMenuItem,
             this.redChannelToolStripMenuItem,
-            this.brightContrastToolStripMenuItem,
-            this.translationToolStripMenuItem1});
+            this.brightContrastToolStripMenuItem});
             this.colorToolStripMenuItem.Name = "colorToolStripMenuItem";
             this.colorToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.colorToolStripMenuItem.Text = "Color";
@@ -198,12 +196,14 @@
             this.translationToolStripMenuItem.Name = "translationToolStripMenuItem";
             this.translationToolStripMenuItem.Size = new System.Drawing.Size(198, 34);
             this.translationToolStripMenuItem.Text = "Translation";
+            this.translationToolStripMenuItem.Click += new System.EventHandler(this.translationToolStripMenuItem_Click);
             // 
             // rotationToolStripMenuItem
             // 
             this.rotationToolStripMenuItem.Name = "rotationToolStripMenuItem";
-            this.rotationToolStripMenuItem.Size = new System.Drawing.Size(198, 34);
+            this.rotationToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.rotationToolStripMenuItem.Text = "Rotation";
+            this.rotationToolStripMenuItem.Click += new System.EventHandler(this.rotationToolStripMenuItem_Click);
             // 
             // zoomToolStripMenuItem
             // 
@@ -244,10 +244,10 @@
             this.panel1.AutoScroll = true;
             this.panel1.Controls.Add(this.ImageViewer);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 35);
+            this.panel1.Location = new System.Drawing.Point(0, 33);
             this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(886, 676);
+            this.panel1.Size = new System.Drawing.Size(886, 678);
             this.panel1.TabIndex = 6;
             // 
             // ImageViewer
@@ -259,13 +259,6 @@
             this.ImageViewer.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.ImageViewer.TabIndex = 6;
             this.ImageViewer.TabStop = false;
-            // 
-            // translationToolStripMenuItem1
-            // 
-            this.translationToolStripMenuItem1.Name = "translationToolStripMenuItem1";
-            this.translationToolStripMenuItem1.Size = new System.Drawing.Size(270, 34);
-            this.translationToolStripMenuItem1.Text = "Translation";
-            this.translationToolStripMenuItem1.Click += new System.EventHandler(this.translationToolStripMenuItem1_Click);
             // 
             // MainForm
             // 
@@ -316,7 +309,6 @@
         private System.Windows.Forms.ToolStripMenuItem grayToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem brightContrastToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem translationToolStripMenuItem1;
     }
 }
 

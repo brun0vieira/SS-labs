@@ -257,11 +257,24 @@ namespace SS_OpenCV
             Cursor = Cursors.Default; // normal cursor
         }
 
+        int mouseX, mouseY;
+        bool mouseFlag = false;
+
+        private void ImageViewer_MouseClick(object sender, MouseEventArgs e)
+        {
+            if(mouseFlag)
+            {
+                mouseX = e.X;
+                mouseY = e.Y;
+
+                mouseFlag = false;
+            }
+        }
+
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (img == null) // verify if the image is already opened
                 return;
-            Cursor = Cursors.WaitCursor; // clock cursor 
 
             //copy Undo Image
             imgUndo = img.Copy();
@@ -271,7 +284,13 @@ namespace SS_OpenCV
 
             float scaleFactor = (float)Convert.ToDouble(form.ValueTextBox.Text);
 
-            ImageClass.Scale(img, imgUndo, scaleFactor);
+            mouseFlag = true;
+
+            while (mouseFlag)
+                Application.DoEvents();
+
+            ImageClass.Scale_point_xy(img, imgUndo, scaleFactor, mouseX, mouseY);
+
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
 

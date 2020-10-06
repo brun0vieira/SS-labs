@@ -530,10 +530,10 @@ namespace SS_OpenCV
                 int padding = m.widthStep - m.nChannels * m.width;
                 int x, y;
                 int x_orig, y_orig;
-                float dx, dy;
+                double dx, dy;
 
-                dx = centerX - (float)((width / scaleFactor) / 2.0);
-                dy = centerY - (float)((width / scaleFactor) / 2.0);
+                dx = centerX - (width / scaleFactor) / 2.0;
+                dy = centerY - (height / scaleFactor) / 2.0;
 
                 if (nChannels == 3)
                 {

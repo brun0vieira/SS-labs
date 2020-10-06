@@ -6,6 +6,7 @@ using Emgu.CV;
 using ZedGraph;
 using System.Xml;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace SS_OpenCV
 {
@@ -372,7 +373,7 @@ namespace SS_OpenCV
                 int widthstep = m.widthStep;
                 byte blue, green, red;
                 int y_orig, x_orig;
-                int padding = m_dest.widthStep - m_dest.nChannels * m_dest.width;
+                int padding = m.widthStep - m.nChannels * m.width;
 
                 if (nChannels == 3) // RGB
                 {
@@ -389,7 +390,7 @@ namespace SS_OpenCV
                             red = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
 
                             // verifica os limites
-                            if (x_orig < 0 || y_orig < 0 || x_orig > width || y_orig > height)
+                            if (x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
                             {
                                 blue = 0;
                                 green = 0;
@@ -424,7 +425,7 @@ namespace SS_OpenCV
                 int height = imgCopy.Height;
                 int nChannels = m.nChannels;
                 int widthstep = m.widthStep;
-                int padding = m_dest.widthStep - m_dest.nChannels * m_dest.width;
+                int padding = m.widthStep - m.nChannels * m.width;
                 int x, y;
                 int x_orig, y_orig;
                 double sin = Math.Sin(angle), cos = Math.Cos(angle);
@@ -464,7 +465,51 @@ namespace SS_OpenCV
 
         public static void Scale(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float scaleFactor)
         {
+            unsafe
+            {
+                
+                MIplImage m = imgCopy.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
 
+                MIplImage m_dest = img.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = imgCopy.Width;
+                int height = imgCopy.Height;
+                int nChannels = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int x_orig, y_orig;
+
+                if(nChannels == 3)
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            x_orig = (int)Math.Round(x / scaleFactor);
+                            y_orig = (int)Math.Round(y / scaleFactor);
+
+                            if(x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
+                            {
+                                dataPtr_dest[0] = 0;
+                                dataPtr_dest[1] = 0;
+                                dataPtr_dest[2] = 0;
+                            }
+                            else
+                            {
+                                dataPtr_dest[0] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
+                                dataPtr_dest[1] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
+                                dataPtr_dest[2] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
+                            }
+                            dataPtr_dest += nChannels;
+                        }
+                        dataPtr_dest += padding;
+                    }
+                }
+                
+            }
         }
     }
 }

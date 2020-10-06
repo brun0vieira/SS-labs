@@ -7,6 +7,7 @@ using ZedGraph;
 using System.Xml;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using Emgu.CV.CvEnum;
 
 namespace SS_OpenCV
 {
@@ -509,6 +510,57 @@ namespace SS_OpenCV
                     }
                 }
                 
+            }
+        }
+
+        public static void Scale_point_xy(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float scaleFactor, int centerX, int centerY)
+        {
+            unsafe
+            {
+                MIplImage m = imgCopy.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                MIplImage m_dest = img.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = imgCopy.Width;
+                int height = imgCopy.Height;
+                int nChannels = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int x_orig, y_orig;
+                float dx, dy;
+
+                dx = centerX - (float)((width / scaleFactor) / 2.0);
+                dy = centerY - (float)((width / scaleFactor) / 2.0);
+
+                if (nChannels == 3)
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            x_orig = (int)Math.Round(x / scaleFactor + dx);
+                            y_orig = (int)Math.Round(y / scaleFactor + dy);
+
+                            if (x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
+                            {
+                                dataPtr_dest[0] = 0;
+                                dataPtr_dest[1] = 0;
+                                dataPtr_dest[2] = 0;
+                            }
+                            else
+                            {
+                                dataPtr_dest[0] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
+                                dataPtr_dest[1] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
+                                dataPtr_dest[2] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
+                            }
+                            dataPtr_dest += nChannels;
+                        }
+                        dataPtr_dest += padding;
+                    }
+                }
             }
         }
     }

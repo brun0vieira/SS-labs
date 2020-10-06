@@ -428,8 +428,8 @@ namespace SS_OpenCV
                 int x, y;
                 int x_orig, y_orig;
                 double sin = Math.Sin(angle), cos = Math.Cos(angle);
-                byte blue, green, red;
-                double half_width = width / 2.0, half_height = height / 2.0;
+                double half_width = width / 2.0;
+                double half_height = height / 2.0;
 
                 if(nChannels == 3) // RGB   
                 {
@@ -440,21 +440,19 @@ namespace SS_OpenCV
                             x_orig = (int)Math.Round((x - half_width) * cos - (half_height - y) * sin + half_width);
                             y_orig = (int)Math.Round(half_height - (x - half_width) * sin - (half_height - y) * cos);
 
-                            blue = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
-                            green = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
-                            red = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
-
-                            if (x_orig < 0 || y_orig < 0 || x_orig > width || y_orig > height)
+                            if (x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
                             {
-                                blue = 0;
-                                green = 0;
-                                red = 0;
+                                dataPtr_dest[0] = 0;
+                                dataPtr_dest[1] = 0;
+                                dataPtr_dest[2] = 0;
+                            }
+                            else
+                            {
+                                dataPtr_dest[0] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[0];
+                                dataPtr_dest[1] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
+                                dataPtr_dest[2] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
                             }
                     
-                            dataPtr_dest[0] = blue;
-                            dataPtr_dest[1] = green;
-                            dataPtr_dest[2] = red;
-                        
                             dataPtr_dest += nChannels;
                         }
                         dataPtr_dest += padding;
@@ -462,6 +460,11 @@ namespace SS_OpenCV
                 }
 
             }
+        }
+
+        public static void Scale(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float scaleFactor)
+        {
+
         }
     }
 }

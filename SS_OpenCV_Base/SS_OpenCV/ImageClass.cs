@@ -595,7 +595,7 @@ namespace SS_OpenCV
 
                             blue_mean = (dataPtr[0] + (dataPtr + nChannels)[0] + (dataPtr - nChannels)[0] + (dataPtr + widthstep)[0] + (dataPtr - widthstep)[0] + (dataPtr - nChannels - widthstep)[0] + (dataPtr - nChannels + widthstep)[0] + (dataPtr + nChannels - widthstep)[0] + (dataPtr + nChannels + widthstep)[0])/9.0;
                             green_mean = (dataPtr[1] + (dataPtr + nChannels)[1] + (dataPtr - nChannels)[1] + (dataPtr + widthstep)[1] + (dataPtr - widthstep)[1] + (dataPtr - nChannels - widthstep)[1] + (dataPtr - nChannels + widthstep)[1] + (dataPtr + nChannels - widthstep)[1] + (dataPtr + nChannels + widthstep)[1])/9.0;
-                            red_mean = (dataPtr[0] + (dataPtr + nChannels)[2] + (dataPtr - nChannels)[2] + (dataPtr + widthstep)[2] + (dataPtr - widthstep)[2] + (dataPtr - nChannels - widthstep)[2] + (dataPtr - nChannels + widthstep)[2] + (dataPtr + nChannels - widthstep)[2] + (dataPtr + nChannels + widthstep)[2])/9.0;
+                            red_mean = (dataPtr[2] + (dataPtr + nChannels)[2] + (dataPtr - nChannels)[2] + (dataPtr + widthstep)[2] + (dataPtr - widthstep)[2] + (dataPtr - nChannels - widthstep)[2] + (dataPtr - nChannels + widthstep)[2] + (dataPtr + nChannels - widthstep)[2] + (dataPtr + nChannels + widthstep)[2])/9.0;
 
 
                             dataPtr_dest[0] = (byte)Math.Round(blue_mean);
@@ -608,6 +608,8 @@ namespace SS_OpenCV
                         dataPtr += padding + 2 * nChannels;
                         dataPtr_dest += padding + 2 * nChannels;
                     }
+
+                    
                 }
             }
         }

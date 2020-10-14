@@ -616,8 +616,7 @@ namespace SS_OpenCV
                     dataPtr = (byte*)m.imageData.ToPointer();
                     dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
-                    // teste 
-                    
+                    // first row
                     for(x = 0; x < width; x++)
                     {
                         if (x == 0)
@@ -647,55 +646,161 @@ namespace SS_OpenCV
                         dataPtr_dest += nChannels;
 
                     }
-                    dataPtr += padding;
-                    dataPtr_dest += padding;
 
-                    /*
-                    int pos=0; // 1 left and -1 right
-                    int counter = 0; 
+                    dataPtr += widthstep;
+                    dataPtr_dest += widthstep;
 
-                    for (y = 1; y < height - 1; y++)
+                    for(y = 1; y < height - 1; y++)
                     {
-                        counter++;
-
-                        if(counter%2 != 0) // se nao for par, está à esquerda. o contador começa a 1, ou seja, à esquerda.
-                        {
-                            pos = 1; // left position
-                            dataPtr
-                        }
-                        else
-                        {
-                            pos = -1; // right position
-                            dataPtr += width * nChannels;
-                            dataPtr_dest += width * nChannels;
-                               
-                        }
-
-                        blue_mean = (dataPtr[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr + widthstep)[0] * 2 + (dataPtr + nChannels*pos)[0] + (dataPtr + nChannels*pos + widthstep)[0] + (dataPtr + nChannels*pos - widthstep)[0]) / 9.0;
-                        green_mean = (dataPtr[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr + widthstep)[1] * 2 + (dataPtr + nChannels*pos)[1] + (dataPtr + nChannels*pos + widthstep)[1] + (dataPtr + nChannels*pos - widthstep)[1]) / 9.0;
-                        red_mean = (dataPtr[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr + widthstep)[2] * 2 + (dataPtr + nChannels*pos)[2] + (dataPtr + nChannels*pos + widthstep)[2] + (dataPtr + nChannels*pos - widthstep)[2]) / 9.0;
+                        blue_mean = (dataPtr[0] * 2 + (dataPtr + widthstep)[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - nChannels)[0] + (dataPtr - widthstep - nChannels)[0] + (dataPtr + widthstep - nChannels)[0]) / 9.0;
+                        green_mean = (dataPtr[1] * 2 + (dataPtr + widthstep)[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - nChannels)[1] + (dataPtr - widthstep - nChannels)[1] + (dataPtr + widthstep - nChannels)[1]) / 9.0;
+                        red_mean = (dataPtr[2] * 2 + (dataPtr + widthstep)[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - nChannels)[2] + (dataPtr - widthstep - nChannels)[2] + (dataPtr + widthstep - nChannels)[2]) / 9.0;
 
                         dataPtr_dest[0] = (byte)Math.Round(blue_mean);
                         dataPtr_dest[1] = (byte)Math.Round(green_mean);
                         dataPtr_dest[2] = (byte)Math.Round(red_mean);
 
-                        /*
-                        dataPtr += width * nChannels - 2 * nChannels;
-                        dataPtr_dest += width * nChannels - 2 * nChannels;
-                        
-                        blue_mean = (dataPtr[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr + widthstep)[0] * 2 + (dataPtr - nChannels)[0] + (dataPtr - nChannels + widthstep)[0] + (dataPtr - nChannels - widthstep)[0]) / 9.0;
-                        green_mean = (dataPtr[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr + widthstep)[1] * 2 + (dataPtr - nChannels)[1] + (dataPtr - nChannels + widthstep)[1] + (dataPtr - nChannels - widthstep)[1]) / 9.0;
-                        red_mean = (dataPtr[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr + widthstep)[2] * 2 + (dataPtr - nChannels)[2] + (dataPtr - nChannels + widthstep)[2] + (dataPtr - nChannels - widthstep)[2]) / 9.0;
-
-                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
-                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
-                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
-                        
-                          
                         dataPtr += widthstep;
                         dataPtr_dest += widthstep;
                     }
-                */
+                    
+                    dataPtr += widthstep;
+                    dataPtr_dest += widthstep;
+                    
+                    // canto inferior direito
+                    blue_mean = (dataPtr[0] * 4 + (dataPtr - nChannels)[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep - nChannels)[0]) / 9.0;
+                    green_mean = (dataPtr[1] * 4 + (dataPtr - nChannels)[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep - nChannels)[1]) / 9.0;
+                    red_mean = (dataPtr[2] * 4 + (dataPtr - nChannels)[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep - nChannels)[2]) / 9.0;
+                    
+                    dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                    dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                    dataPtr_dest[2] = (byte)Math.Round(red_mean);
+                    
+                    dataPtr -= nChannels;
+                    dataPtr_dest -= nChannels;
+
+                    for(x = 1; x < width - 1; x++)
+                    {
+                        
+                        blue_mean = (dataPtr[0] * 2 + (dataPtr - nChannels)[0] * 2 + (dataPtr + nChannels)[0] * 2 + (dataPtr - widthstep)[0] + (dataPtr - widthstep - nChannels)[0] + (dataPtr - widthstep + nChannels)[0]) / 9.0;
+                        green_mean = (dataPtr[1] * 2 + (dataPtr - nChannels)[1] * 2 + (dataPtr + nChannels)[1] * 2 + (dataPtr - widthstep)[1] + (dataPtr - widthstep - nChannels)[1] + (dataPtr - widthstep + nChannels)[1]) / 9.0;
+                        red_mean = (dataPtr[2] * 2 + (dataPtr - nChannels)[2] * 2 + (dataPtr + nChannels)[2] * 2 + (dataPtr - widthstep)[2] + (dataPtr - widthstep - nChannels)[2] + (dataPtr - widthstep + nChannels)[2]) / 9.0;
+                        
+                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
+                        
+                        dataPtr -= nChannels;
+                        dataPtr_dest -= nChannels;
+                        
+                    }
+                    /*
+                    dataPtr -= nChannels;
+                    dataPtr_dest -= nChannels;
+
+                    // canto inferior esquerdo
+                    blue_mean = (dataPtr[0] * 4 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep + nChannels)[0] + (dataPtr + nChannels)[0] * 2) / 9.0;
+                    green_mean = (dataPtr[1] * 4 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep + nChannels)[1] + (dataPtr + nChannels)[1] * 2) / 9.0;
+                    red_mean = (dataPtr[2] * 4 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep + nChannels)[2] + (dataPtr + nChannels)[2] * 2) / 9.0;
+
+                    dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                    dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                    dataPtr_dest[2] = (byte)Math.Round(red_mean);
+
+                    dataPtr -= widthstep;
+                    dataPtr_dest -= widthstep;
+
+                    for(y = 1; y < height - 1; y++)
+                    {
+                        blue_mean = (dataPtr[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep + nChannels)[0] + (dataPtr + nChannels)[0] + (dataPtr + widthstep)[0] * 2 + (dataPtr + widthstep + nChannels)[0]) / 9.0;
+                        green_mean = (dataPtr[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep + nChannels)[1] + (dataPtr + nChannels)[1] + (dataPtr + widthstep)[1] * 2 + (dataPtr + widthstep + nChannels)[1]) / 9.0;
+                        red_mean = (dataPtr[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep + nChannels)[2] + (dataPtr + nChannels)[2] + (dataPtr + widthstep)[2] * 2 + (dataPtr + widthstep + nChannels)[2]) / 9.0;
+
+                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
+
+                        dataPtr -= widthstep;
+                        dataPtr_dest -= widthstep;
+                    }
+
+                    /*
+                    // left column
+                    for(y = 1; y < height; y++)
+                    {
+                        // se for o canto inferior esq
+                        if(y == height)
+                        {
+                            blue_mean = (dataPtr[0] * 4 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep + nChannels)[0] + (dataPtr + nChannels)[0] * 2) / 9.0;
+                            green_mean = (dataPtr[1] * 4 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep + nChannels)[1] + (dataPtr + nChannels)[1] * 2) / 9.0;
+                            red_mean = (dataPtr[2] * 4 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep + nChannels)[2] + (dataPtr + nChannels)[2] * 2) / 9.0;
+                        }
+
+                        else
+                        {
+                            blue_mean = (dataPtr[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep + nChannels)[0] + (dataPtr + nChannels)[0] + (dataPtr + widthstep)[0] * 2 + (dataPtr + widthstep + nChannels)[0]) / 9.0;
+                            green_mean = (dataPtr[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep + nChannels)[1] + (dataPtr + nChannels)[1] + (dataPtr + widthstep)[1] * 2 + (dataPtr + widthstep + nChannels)[1]) / 9.0;
+                            red_mean = (dataPtr[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep + nChannels)[2] + (dataPtr + nChannels)[2] + (dataPtr + widthstep)[2] * 2 + (dataPtr + widthstep + nChannels)[2]) / 9.0;
+                        }
+
+                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
+
+                        dataPtr += widthstep;
+                        dataPtr_dest += widthstep;
+
+                    }
+
+                    dataPtr += nChannels;
+                    dataPtr_dest += nChannels;
+
+                    // last row
+                    for(x = 1; x < width; x++)
+                    {
+                        // canto inferior direito
+                        if(x == width)
+                        {
+                            blue_mean = (dataPtr[0] * 4 + (dataPtr - nChannels)[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - widthstep - nChannels)[0]) / 9.0;
+                            green_mean = (dataPtr[1] * 4 + (dataPtr - nChannels)[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - widthstep - nChannels)[1]) / 9.0;
+                            red_mean = (dataPtr[2] * 4 + (dataPtr - nChannels)[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - widthstep - nChannels)[2]) / 9.0;
+
+                        }
+                        else
+                        {
+                            blue_mean = (dataPtr[0] * 2 + (dataPtr - nChannels)[0] * 2 + (dataPtr + nChannels)[0] * 2 + (dataPtr - widthstep)[0] + (dataPtr - widthstep - nChannels)[0] + (dataPtr - widthstep + nChannels)[0]) / 9.0;
+                            green_mean = (dataPtr[1] * 2 + (dataPtr - nChannels)[1] * 2 + (dataPtr + nChannels)[1] * 2 + (dataPtr - widthstep)[1] + (dataPtr - widthstep - nChannels)[1] + (dataPtr - widthstep + nChannels)[1]) / 9.0;
+                            red_mean = (dataPtr[2] * 2 + (dataPtr - nChannels)[2] * 2 + (dataPtr + nChannels)[2] * 2 + (dataPtr - widthstep)[2] + (dataPtr - widthstep - nChannels)[2] + (dataPtr - widthstep + nChannels)[2]) / 9.0;
+                        }
+
+                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
+
+                        dataPtr += nChannels;
+                        dataPtr_dest += nChannels;
+
+                    }
+
+                    dataPtr -= widthstep;
+                    dataPtr_dest -= widthstep;
+
+                    // right column
+                    for(y = 1; y < height - 1; y++)
+                    {
+                        blue_mean = (dataPtr[0] * 2 + (dataPtr + widthstep)[0] * 2 + (dataPtr - widthstep)[0] * 2 + (dataPtr - nChannels)[0] + (dataPtr - widthstep - nChannels)[0] + (dataPtr + widthstep - nChannels)[0]) / 9.0;
+                        green_mean = (dataPtr[1] * 2 + (dataPtr + widthstep)[1] * 2 + (dataPtr - widthstep)[1] * 2 + (dataPtr - nChannels)[1] + (dataPtr - widthstep - nChannels)[1] + (dataPtr + widthstep - nChannels)[1]) / 9.0;
+                        red_mean = (dataPtr[2] * 2 + (dataPtr + widthstep)[2] * 2 + (dataPtr - widthstep)[2] * 2 + (dataPtr - nChannels)[2] + (dataPtr - widthstep - nChannels)[2] + (dataPtr + widthstep - nChannels)[2]) / 9.0;
+
+                        dataPtr_dest[0] = (byte)Math.Round(blue_mean);
+                        dataPtr_dest[1] = (byte)Math.Round(green_mean);
+                        dataPtr_dest[2] = (byte)Math.Round(red_mean);
+
+                        dataPtr -= widthstep;
+                        dataPtr_dest -= widthstep;
+
+                    }
+                    */
                 }
             }
         }

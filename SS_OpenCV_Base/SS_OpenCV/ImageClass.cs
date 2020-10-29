@@ -753,10 +753,10 @@ namespace SS_OpenCV
                 MIplImage m_dest = imgCopy.MIplImage;
                 byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
-                int width = img.Width; // value in pixels without padding
-                int height = img.Height; // value in pixels without padding
-                int nC = m.nChannels; // number of channels - 3 -> channels are rgb (red,green,blue)
-                int widthstep = m.widthStep; //complete line
+                int width = img.Width; 
+                int height = img.Height; 
+                int nC = m.nChannels; 
+                int widthstep = m.widthStep; 
                 int padding = widthstep - nC * width;
 
                 double blue, red, green;
@@ -789,7 +789,46 @@ namespace SS_OpenCV
 
                     }
 
+                    // inicio da imagem
+                    dataPtr = (byte*)m.imageData.ToPointer();
+                    dataPtr = (byte*)m_dest.imageData.ToPointer();
+
+                    blue = (dataPtr_dest[0] * (matrix[0,0] + matrix[0,1] + matrix[1,0] + matrix[1,1]) + (dataPtr_dest+nC)[0] * (matrix[0,2] + matrix[1,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                    green = (dataPtr_dest[1] * (matrix[0, 0] + matrix[0, 1] + matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[1] * (matrix[0, 2] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
+                    red = (dataPtr_dest[2] * (matrix[0, 0] + matrix[0, 1] + matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[2] * (matrix[0, 2] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
+
+                    dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                    dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                    dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                    dataPtr += nC;
+                    dataPtr_dest += nC;
+
+                    for(x=1; x<width-1; x++)
+                    {
+                        blue = ((dataPtr_dest-nC)[0] * (matrix[0,0] + matrix[1,0]) + dataPtr_dest[0] * (matrix[0,1] + matrix[1,1]) + (dataPtr_dest+nC)[0] * (matrix[1,2] + matrix[0,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                        green = ((dataPtr_dest - nC)[1] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[1] * (matrix[0, 1] + matrix[1, 1]) + (dataPtr_dest + nC)[1] * (matrix[1, 2] + matrix[0, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
+                        red = ((dataPtr_dest - nC)[2] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[2] * (matrix[0, 1] + matrix[1, 1]) + (dataPtr_dest + nC)[2] * (matrix[1, 2] + matrix[0, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
+
+                        dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                        dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                        dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                        dataPtr += nC;
+                        dataPtr_dest += nC;
+                    }
+
+                    blue = ((dataPtr_dest-nC)[0] * (matrix[0,0] + matrix[1,0]) + dataPtr_dest[0] * (matrix[0,1] + matrix[0,2] + matrix[1,1] + matrix[1,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                    green = ((dataPtr_dest - nC)[1] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[1] * (matrix[0, 1] + matrix[0, 2] + matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
+                    red = ((dataPtr_dest - nC)[2] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[2] * (matrix[0, 1] + matrix[0, 2] + matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
+
+                    dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                    dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                    dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
                 }
+
+
             }
         }
 

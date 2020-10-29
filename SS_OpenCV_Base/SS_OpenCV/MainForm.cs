@@ -271,6 +271,11 @@ namespace SS_OpenCV
             }
         }
 
+        private void nonUniformToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (img == null) // verify if the image is already opened

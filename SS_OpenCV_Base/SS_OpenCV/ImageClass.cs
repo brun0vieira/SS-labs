@@ -941,13 +941,13 @@ namespace SS_OpenCV
                         for (x = 1; x < (width - 1); x++)
                         {
 
-                            blue_x = (dataPtr_dest - nC - widthstep)[0] + (dataPtr_dest - nC)[0] * 2 + (dataPtr_dest - nC + widthstep)[0] - ((dataPtr_dest + nC + widthstep)[0] + (dataPtr_dest + nC)[0] * 2 + (dataPtr_dest + nC + widthstep)[0]);
+                            blue_x = (dataPtr_dest - nC - widthstep)[0] + (dataPtr_dest - nC)[0] * 2 + (dataPtr_dest - nC + widthstep)[0] - ((dataPtr_dest + nC + widthstep)[0] + (dataPtr_dest + nC)[0] * 2 + (dataPtr_dest + nC - widthstep)[0]);
                             blue_y = (dataPtr_dest - nC + widthstep)[0] + (dataPtr_dest + widthstep)[0] * 2 + (dataPtr_dest + nC + widthstep)[0] - ((dataPtr_dest - nC - widthstep)[0] + (dataPtr_dest - widthstep)[0] * 2 + (dataPtr_dest + nC - widthstep)[0]);
 
-                            green_x = (dataPtr_dest - nC - widthstep)[1] + (dataPtr_dest - nC)[1] * 2 + (dataPtr_dest - nC + widthstep)[1] - ((dataPtr_dest + nC + widthstep)[1] + (dataPtr_dest + nC)[1] * 2 + (dataPtr_dest + nC + widthstep)[1]);
+                            green_x = (dataPtr_dest - nC - widthstep)[1] + (dataPtr_dest - nC)[1] * 2 + (dataPtr_dest - nC + widthstep)[1] - ((dataPtr_dest + nC + widthstep)[1] + (dataPtr_dest + nC)[1] * 2 + (dataPtr_dest + nC - widthstep)[1]);
                             green_y = (dataPtr_dest - nC + widthstep)[1] + (dataPtr_dest + widthstep)[1] * 2 + (dataPtr_dest + nC + widthstep)[1] - ((dataPtr_dest - nC - widthstep)[1] + (dataPtr_dest - widthstep)[1] * 2 + (dataPtr_dest + nC - widthstep)[1]);
 
-                            red_x = (dataPtr_dest - nC - widthstep)[2] + (dataPtr_dest - nC)[2] * 2 + (dataPtr_dest - nC + widthstep)[2] - ((dataPtr_dest + nC + widthstep)[2] + (dataPtr_dest + nC)[2] * 2 + (dataPtr_dest + nC + widthstep)[2]);
+                            red_x = (dataPtr_dest - nC - widthstep)[2] + (dataPtr_dest - nC)[2] * 2 + (dataPtr_dest - nC + widthstep)[2] - ((dataPtr_dest + nC + widthstep)[2] + (dataPtr_dest + nC)[2] * 2 + (dataPtr_dest + nC - widthstep)[2]);
                             red_y = (dataPtr_dest - nC + widthstep)[2] + (dataPtr_dest + widthstep)[2] * 2 + (dataPtr_dest + nC + widthstep)[2] - ((dataPtr_dest - nC - widthstep)[2] + (dataPtr_dest - widthstep)[2] * 2 + (dataPtr_dest + nC - widthstep)[2]);
 
                             blue = Math.Abs(blue_x) + Math.Abs(blue_y);

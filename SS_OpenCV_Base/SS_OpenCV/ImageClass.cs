@@ -1093,13 +1093,13 @@ namespace SS_OpenCV
                     {
 
                         blue_x = (dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest - nC)[0] * 3 - ((dataPtr_dest - widthstep + nC)[0] + (dataPtr_dest + nC)[0] * 3);
-                        blue_y = (dataPtr_dest - nC)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + nC)[0] - ((dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest-widthstep)[0] + (dataPtr_dest - widthstep + nC)[0]);
+                        blue_y = (dataPtr_dest - nC)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + nC)[0] - ((dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest-widthstep)[0]*2 + (dataPtr_dest - widthstep + nC)[0]);
 
                         green_x = (dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - nC)[1] * 3 - ((dataPtr_dest - widthstep + nC)[1] + (dataPtr_dest + nC)[1] * 3);
-                        green_y = (dataPtr_dest - nC)[1] + dataPtr_dest[1] * 2 + (dataPtr_dest + nC)[1] - ((dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - widthstep)[1] + (dataPtr_dest - widthstep + nC)[1]);
+                        green_y = (dataPtr_dest - nC)[1] + dataPtr_dest[1] * 2 + (dataPtr_dest + nC)[1] - ((dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - widthstep)[1]*2 + (dataPtr_dest - widthstep + nC)[1]);
 
                         red_x = (dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - nC)[2] * 3 - ((dataPtr_dest - widthstep + nC)[2] + (dataPtr_dest + nC)[2] * 3);
-                        red_y = (dataPtr_dest - nC)[2] + dataPtr_dest[2] * 2 + (dataPtr_dest + nC)[2] - ((dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - widthstep)[2] + (dataPtr_dest - widthstep + nC)[2]);
+                        red_y = (dataPtr_dest - nC)[2] + dataPtr_dest[2] * 2 + (dataPtr_dest + nC)[2] - ((dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - widthstep)[2]*2 + (dataPtr_dest - widthstep + nC)[2]);
 
                         blue = Math.Abs(blue_x) + Math.Abs(blue_y);
                         green = Math.Abs(green_x) + Math.Abs(green_y);
@@ -1165,5 +1165,133 @@ namespace SS_OpenCV
             }
         }
 
+        public static void Diferentiation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                MIplImage m_dest = imgCopy.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+
+                double blue, red, green;
+                int x, y;
+
+                dataPtr += widthstep + nC;
+                dataPtr_dest += widthstep + nC;
+
+                if (nC == 3)
+                {
+                    for (y = 1; y < (height - 1); y++) // all but margins
+                    {
+
+                        for (x = 1; x < (width - 1); x++)
+                        {
+
+                            blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]) + Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
+                            green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]) + Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
+                            red = Math.Abs(dataPtr_dest[2] - (dataPtr_dest + nC)[2]) + Math.Abs(dataPtr_dest[2] - (dataPtr_dest + widthstep)[2]);
+
+                            dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                            dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                            dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                            dataPtr_dest += nC;
+                            dataPtr += nC;
+
+                        }
+                        dataPtr_dest += padding + 2 * nC; // nC to gett out of the margin
+                        dataPtr += padding + 2 * nC;
+                    }
+
+                    // x=0 , y=0 primeiro pixel
+                    dataPtr = (byte*)m.imageData.ToPointer();
+                    dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                    for(x = 0; x < (width-1); x++)
+                    {
+                        blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]) + Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
+                        green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]) + Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
+                        red = Math.Abs(dataPtr_dest[2] - (dataPtr_dest + nC)[2]) + Math.Abs(dataPtr_dest[2] - (dataPtr_dest + widthstep)[2]);
+
+                        dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                        dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                        dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                        dataPtr_dest += nC;
+                        dataPtr += nC;
+                    }
+
+                    for(y=0; y < (height-1); y++)
+                    {
+                        blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
+                        green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
+                        red = Math.Abs(dataPtr_dest[2] - (dataPtr_dest + widthstep)[2]);
+
+                        dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                        dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                        dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                        dataPtr_dest += widthstep;
+                        dataPtr += widthstep;
+                    }
+
+                    dataPtr[0] = (byte)0;
+                    dataPtr[1] = (byte)0;
+                    dataPtr[2] = (byte)0;
+
+                    dataPtr -= nC;
+                    dataPtr_dest -= nC;
+
+                    for(x=1; x < width; x++)
+                    {
+                        blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]);
+                        green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]);
+                        red = Math.Abs(dataPtr_dest[2] - (dataPtr_dest + nC)[2]);
+
+                        dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                        dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                        dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                        dataPtr -= nC;
+                        dataPtr_dest -= nC;
+                    }
+
+                    dataPtr -= widthstep;
+                    dataPtr_dest -= widthstep;
+
+                    for(y=1; y< (height-1); y++)
+                    {
+                        blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]) + Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
+                        green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]) + Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
+                        red = Math.Abs(dataPtr_dest[2] - (dataPtr_dest + nC)[2]) + Math.Abs(dataPtr_dest[2] - (dataPtr_dest + widthstep)[2]);
+
+                        dataPtr[0] = (byte)Math.Round(blue < 0 ? 0 : blue > 255 ? 255 : blue);
+                        dataPtr[1] = (byte)Math.Round(green < 0 ? 0 : green > 255 ? 255 : green);
+                        dataPtr[2] = (byte)Math.Round(red < 0 ? 0 : red > 255 ? 255 : red);
+
+                        dataPtr -= widthstep;
+                        dataPtr_dest -= widthstep;
+                    }
+
+
+
+
+
+                }
+            }
+        }
+
+        public static void Median(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
+        {
+            imgCopy.SmoothMedian(3).CopyTo(img);
+        }
     }
 }

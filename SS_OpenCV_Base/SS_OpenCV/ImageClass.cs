@@ -1479,6 +1479,46 @@ namespace SS_OpenCV
             }
         }
 
+        public static void ConvertToBW(Emgu.CV.Image<Bgr, byte> img, int threshold)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                byte blue, green, red, gray;
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int[] vector = new int[256];
+
+                for(y=0; y<height;y++)
+                {
+                    for(x=0; x<width; x++)
+                    {
+
+                        blue = dataPtr[0];
+                        green = dataPtr[1];
+                        red = dataPtr[2];
+
+                        gray = (byte)Math.Round(((int)blue + green + red)/ 3.0);
+
+                        gray = (byte)(gray<=threshold ? 0 : 255);
+
+                        dataPtr[0] = gray;
+                        dataPtr[1] = gray;
+                        dataPtr[2] = gray;
+
+                        dataPtr += nC;
+
+                    }
+                    dataPtr += padding;
+                }
+            }
+        }
+
     }
 }
 

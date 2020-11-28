@@ -13,6 +13,7 @@
 13;Histogram_Gray;Compute just image Gray histogram;int[] Histogram_Gray(Emgu.CV.Image<Bgr,byte> img),,,,,,,
 14;Histogram_RGB;Compute just image RGB histogram;int[,] Histogram_RGB(Emgu.CV.Image<Bgr,byte> img),,,,,,
 15;Histogram_All;Compute image Gray and RGB histogram;int[,] Histogram_All(Emgu.CV.Image<Bgr,byte> img),,,,,,
+21;Equalization;Histogram Equalization;void Equalization(Image<Bgr,byte> img),,,,,
 16;ConvertToBW;Binarization with fixed value 157;void ConvertToBW(Emgu.CV.Image<Bgr,byte> img,int threshold),,,,,,
 17;ConvertToBW_Otsu;Binarization with Otsu Method;void ConvertToBW_Otsu(Emgu.CV.Image<Bgr,byte> img),,,,,,,
 18;Mean_solutionB;Mean 3x3 - solution B;void Mean_solutionB(Image<Bgr,byte> img,Image<Bgr,byte> imgCopy),,,,,

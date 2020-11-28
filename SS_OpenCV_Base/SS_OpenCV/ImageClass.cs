@@ -1415,5 +1415,71 @@ namespace SS_OpenCV
             }
         }
 
+        public static void Equalization(Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+                Image<Ycc, byte> imgYCC = img.Convert<Ycc, byte>();
+                MIplImage m = imgYCC.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                byte Y;
+                int acumHist = 0, acumHistMin = 0;
+
+                int width = img.Width;
+                int height = img.Height;
+                int wXh = width * height;
+                int nC = m.nChannels;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y, i;
+                int[] vector = new int[256];
+                double[] newH = new double[256];
+
+                if(nC == 3)
+                {
+                    for(y=0; y<height;y++)
+                    {
+                        for(x=0; x<width; x++)
+                        {
+                            Y = dataPtr[0];
+
+                            vector[Y]++;
+
+                            dataPtr += nC;
+                        }
+                        dataPtr += padding;
+                    }
+
+                    for(i=0; i<=255; i++)
+                    {
+                        if (acumHistMin == 0)
+                            acumHistMin = vector[i];
+
+                        acumHist += vector[i];
+
+                        newH[i] = Math.Round((((double)acumHist-acumHistMin)/(wXh - acumHistMin))*255);
+                    }
+
+                    dataPtr = (byte*)m.imageData.ToPointer();
+
+                    for(y=0; y<height; y++)
+                    {
+                        for(x=0; x<width; x++)
+                        {
+                            dataPtr[0] = (byte)newH[dataPtr[0]];
+
+                            dataPtr += nC;
+                        }
+                        dataPtr += padding;
+                    }
+                }
+
+                img.ConvertFrom<Ycc, byte>(imgYCC);
+
+            }
+        }
+
     }
 }
+
+        

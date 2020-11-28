@@ -1519,6 +1519,65 @@ namespace SS_OpenCV
             }
         }
 
+        private static int OTSU(int[] hist, int nPixels)
+        {
+
+            double u1, u2, o2, prev_o2, pi, q22, q2, q1, q11;
+            int t, threshold;
+            t = threshold = 0;
+            u1 = u2 = o2 = prev_o2 = pi = q22 = q2 = q1 = q11 = 0;
+
+            while (t < 255)
+            {
+                u1 = u2 = o2 = pi = q22 = q2 = q1 = q11 = 0;
+
+                for (int i = 0; i <= t; i++)
+                {
+                    pi = (double)hist[i] / nPixels;
+                    q1 += pi;
+                    q11 += (double)i * pi;
+
+                }
+                for (int i = t + 1; i <= 255; i++)
+                {
+                    pi = (double)hist[i] / nPixels;
+                    q2 += pi;
+                    q22 += (double)i * pi;
+                }
+
+                u1 = q11 / q1;
+                u2 = q22 / q2;
+                o2 = q1 * q2 * Math.Pow((u1 - u2), 2);
+
+                if (o2 > prev_o2)
+                {
+                    threshold = t;
+                    prev_o2 = o2;
+                }
+                t++;
+            }
+
+            return threshold;
+        }
+
+        public static void ConvertToBW_Otsu(Emgu.CV.Image<Bgr, byte> img)
+        {
+             unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+
+                int nPixels = width * height;
+
+                int[] hist = Histogram_Gray(img);
+                int threshold = OTSU(hist,nPixels);
+                ImageClass.ConvertToBW(img, threshold);
+            }
+        }
+
     }
 }
 

@@ -298,7 +298,7 @@ namespace SS_OpenCV
                 int height = img.Height;
                 int nChan = m.nChannels; // number of channels - 3
                 int padding = m.widthStep - m.nChannels * m.width; // alinhament bytes (padding)
-                int x, y, i;
+                int x, y;
                 double[] aux = new double[3];
 
                 if (nChan == 3) // image in RGB
@@ -1293,5 +1293,127 @@ namespace SS_OpenCV
         {
             imgCopy.SmoothMedian(3).CopyTo(img);
         }
+
+        public static int[] Histogram_Gray(Emgu.CV.Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                byte blue, green, red, gray;
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int[] vector = new int[256];
+                
+                if(nC == 3)
+                {
+                    for(y=0; y<height; y++)
+                    {
+                        for(x=0; x<width; x++)
+                        {
+                            blue = dataPtr[0];
+                            green = dataPtr[1];
+                            red = dataPtr[2];
+
+                            gray = (byte)Math.Round(((int)blue + green + red) / 3.0);
+
+                            vector[gray]++;
+
+                            dataPtr += nC;
+                        }
+                        dataPtr += padding;
+                    }
+                }
+                return vector;
+
+            }
+        }
+
+        public static int[,] Histogram_RGB(Emgu.CV.Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                byte blue, green, red;
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int[,] matrix = new int[3,256];
+
+                if (nC == 3)
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            blue = dataPtr[0];
+                            green = dataPtr[1];
+                            red = dataPtr[2];
+
+                            
+                            matrix[0,blue]++;
+                            matrix[1,green]++;
+                            matrix[2,red]++;
+            
+                            dataPtr += nC;
+                        }
+                        dataPtr += padding;
+                    }
+                }
+                return matrix;
+
+            }
+        }
+
+        public static int[,] Histogram_All(Emgu.CV.Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                byte blue, green, red, gray;
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                int[,] matrix = new int[4, 256];
+
+                if (nC == 3)
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            blue = dataPtr[0];
+                            green = dataPtr[1];
+                            red = dataPtr[2];
+
+                            gray = (byte)Math.Round(((int)blue+green+red) / 3.0);
+
+                            matrix[0, gray]++;
+                            matrix[1, blue]++;
+                            matrix[2, green]++;
+                            matrix[3, red]++;
+
+                            dataPtr += nC;
+                        }
+                        dataPtr += padding;
+                    }
+                }
+                return matrix;
+
+            }
+        }
+
     }
 }

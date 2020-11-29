@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Emgu.CV.CvEnum;
 using System.Diagnostics;
+using System.Drawing;
 
 namespace SS_OpenCV
 {
@@ -1601,6 +1602,41 @@ namespace SS_OpenCV
             }
         }
 
+        /// <summary>
+        /// Barcode reader - SS final project
+        /// </summary>
+        /// <param name="img">Original image</param>
+        /// <param name="type">image type</param>
+        /// <param name="bc_centroid1">output the centroid of the first barcode </param>
+        /// <param name="bc_size1">output the size of the first barcode </param>
+        /// <param name="bc_image1">output a string containing the first barcode read from the bars</param>
+        /// <param name="bc_number1">output a string containing the first barcode read from the numbers in the bottom</param>
+        /// <param name="bc_centroid2">output the centroid of the second barcode </param>
+        /// <param name="bc_size2">output the size of the second barcode</param>
+        /// <param name="bc_image2">output a string containing the second barcode read from the bars. It returns null, if it does not exist.</param>
+        /// <param name="bc_number2">output a string containing the second barcode read from the numbers in the bottom. It returns null, if it does not exist.</param>
+        /// <returns>image with barcodes detected</returns>
+        public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
+        {
+            // first barcode
+            bc_image1 = "5601212323434";
+            bc_number1 = "9780201379624";
+            bc_centroid1 = new Point(130, 60);
+            bc_size1 = new Size(200, 80);
+
+            //second barcode
+            bc_image2 = null;
+            bc_number2 = null;
+            bc_centroid2 = Point.Empty;
+            bc_size2 = Size.Empty;
+            // draw the rectangle over the destination image
+            img.Draw(new Rectangle(bc_centroid1.X - bc_size1.Width / 2,
+            bc_centroid1.Y - bc_size1.Height / 2,
+            bc_size1.Width,
+            bc_size1.Height),
+            new Bgr(0, 255, 0), 3);
+            return img;
+        }
     }
 }
 

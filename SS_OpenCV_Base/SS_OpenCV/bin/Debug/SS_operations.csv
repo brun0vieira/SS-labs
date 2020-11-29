@@ -1,3 +1,4 @@
+40;BarCodeReader;BarCodeReader;Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1,out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
 1;Negative;Negative;void Negative(Image<Bgr,byte> img),,,,,,,
 2;BrightContrast;Brightness & Contrast;void BrightContrast(Image<Bgr,byte> img,int bright,double contrast),,,,,
 3;RedChannel;Red Channel;void RedChannel(Image<Bgr,byte> img),,,,,,,

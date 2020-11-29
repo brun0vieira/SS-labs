@@ -273,7 +273,233 @@ namespace SS_OpenCV
 
         private void nonUniformToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            
+            undoToolStripMenuItem_Click(null, null);
 
+            float matrixWeight = 0;
+            float matrix00;
+            float matrix01;
+            float matrix02;
+            float matrix10;
+            float matrix11;
+            float matrix12;
+            float matrix20;
+            float matrix21;
+            float matrix22;
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            Image<Bgr, byte> imgCpy = img.Copy();
+
+            Prompt prompt = new Prompt("Non Uniform Filter");
+            prompt.ShowDialog();
+
+            do
+            {
+                matrix00 = (float)Convert.ToDouble(prompt.valueTextBox1.Text);
+                matrix01 = (float)Convert.ToDouble(prompt.valueTextBox2.Text);
+                matrix02 = (float)Convert.ToDouble(prompt.valueTextBox3.Text);
+                matrix10 = (float)Convert.ToDouble(prompt.valueTextBox4.Text);
+                matrix11 = (float)Convert.ToDouble(prompt.valueTextBox5.Text);
+                matrix12 = (float)Convert.ToDouble(prompt.valueTextBox6.Text);
+                matrix20 = (float)Convert.ToDouble(prompt.valueTextBox7.Text);
+                matrix21 = (float)Convert.ToDouble(prompt.valueTextBox8.Text);
+                matrix22 = (float)Convert.ToDouble(prompt.valueTextBox9.Text);
+
+            } while (String.IsNullOrEmpty(prompt.valueTextBox1.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox2.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox3.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox4.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox5.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox6.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox7.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox8.Text) ||
+                     String.IsNullOrEmpty(prompt.valueTextBox9.Text));
+
+            float[,] matrix = new float[,] { { matrix00, matrix01, matrix02 },
+                                             { matrix10, matrix11, matrix12 },
+                                             { matrix20, matrix21, matrix22 } };
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    matrixWeight += matrix[i, j];
+                }
+            }
+            if (matrixWeight == 0)
+                matrixWeight = 1;
+
+            Console.WriteLine(matrixWeight);
+            ImageClass.NonUniform(img, imgCpy, matrix, matrixWeight);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor
+            
+        }
+
+        private void greenChannelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            ImageClass.GreenChannel(img);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void blueChannelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            ImageClass.BlueChannel(img);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void meanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Mean(img, imgCopy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void sobelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Sobel(img, imgCopy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor
+        }
+
+        private void diferentiationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Diferentiation(img, imgCopy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void medianToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Median(img, imgCopy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void grayToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            Image<Bgr, byte> imgCpy = img.Copy();
+
+            Histogram histogram = new Histogram(ImageClass.Histogram_Gray(img));
+            histogram.ShowDialog();
+        }
+
+        private void rGBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_RGB(img), 3);
+            histogramLines.ShowDialog();
+        }
+
+        private void allToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+
+            HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_All(img), 4);
+            histogramLines.ShowDialog();
         }
 
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)

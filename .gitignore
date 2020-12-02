@@ -54,3 +54,6 @@
 *.exe
 *.out
 *.app
+
+*.ini
+*.desktop.ini

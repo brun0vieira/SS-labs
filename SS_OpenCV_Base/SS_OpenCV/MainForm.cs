@@ -3,6 +3,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using System.Drawing;
 
 namespace SS_OpenCV
 { 
@@ -273,7 +274,7 @@ namespace SS_OpenCV
 
         private void nonUniformToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+            /*
             undoToolStripMenuItem_Click(null, null);
 
             float matrixWeight = 0;
@@ -341,7 +342,7 @@ namespace SS_OpenCV
             ImageViewer.Refresh(); // refresh image on the screen
 
             Cursor = Cursors.Default; // normal cursor
-            
+            */
         }
 
         private void greenChannelToolStripMenuItem_Click(object sender, EventArgs e)
@@ -464,7 +465,7 @@ namespace SS_OpenCV
 
         private void grayToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (img == null) // verify if the image is already opened
+            /*if (img == null) // verify if the image is already opened
                 return;
             Cursor = Cursors.WaitCursor; // clock cursor 
 
@@ -473,12 +474,12 @@ namespace SS_OpenCV
             Image<Bgr, byte> imgCpy = img.Copy();
 
             Histogram histogram = new Histogram(ImageClass.Histogram_Gray(img));
-            histogram.ShowDialog();
+            histogram.ShowDialog();*/
         }
 
         private void rGBToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (img == null) // verify if the image is already opened
+            /*if (img == null) // verify if the image is already opened
                 return;
             Cursor = Cursors.WaitCursor; // clock cursor 
 
@@ -486,11 +487,12 @@ namespace SS_OpenCV
             imgUndo = img.Copy();
 
             HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_RGB(img), 3);
-            histogramLines.ShowDialog();
+            histogramLines.ShowDialog(); */
         }
 
         private void allToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            /*
             if (img == null) // verify if the image is already opened
                 return;
             Cursor = Cursors.WaitCursor; // clock cursor 
@@ -500,6 +502,7 @@ namespace SS_OpenCV
 
             HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_All(img), 4);
             histogramLines.ShowDialog();
+            */
         }
 
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)

@@ -207,3 +207,6 @@ C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_OpenCV.exe
 C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_OpenCV.pdb
 C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\bin\Debug\SS_Eval.pdb
 C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.csproj.CopyComplete
+C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.Histogram.resources
+C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.HistogramLines.resources
+C:\Users\bruno\Desktop\SS-labs\SS_OpenCV_Base\SS_OpenCV\obj\Debug\SS_OpenCV.Prompt.resources

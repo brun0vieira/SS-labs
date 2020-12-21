@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 ﻿using System;
+=======
+<<<<<<< HEAD
+﻿/*using System;
+=======
+﻿using System;
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,7 +35,15 @@ namespace SS_OpenCV
         {
             var chart = chart1.ChartAreas[0];
 
+<<<<<<< Updated upstream
             chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+=======
+<<<<<<< HEAD
+           // chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+=======
+            chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes
 
             chart.AxisX.LabelStyle.Format = "";
             chart.AxisY.LabelStyle.Format = "";
@@ -42,6 +58,20 @@ namespace SS_OpenCV
             chart1.Series[0].IsVisibleInLegend = false;
 
             chart1.Series.Add("Blue");
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+           // chart1.Series["Blue"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series["Blue"].Color = Color.Blue;
+
+            chart1.Series.Add("Green");
+           // chart1.Series["Green"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series["Green"].Color = Color.LightGreen;
+
+            chart1.Series.Add("Red");
+           // chart1.Series["Red"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+=======
+>>>>>>> Stashed changes
             chart1.Series["Blue"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             chart1.Series["Blue"].Color = Color.Blue;
 
@@ -51,6 +81,10 @@ namespace SS_OpenCV
 
             chart1.Series.Add("Red");
             chart1.Series["Red"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+<<<<<<< Updated upstream
+=======
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes
             chart1.Series["Red"].Color = Color.Red;
 
             for (int j = 0; j < 256; j++)
@@ -66,7 +100,15 @@ namespace SS_OpenCV
         {
             var chart = chart1.ChartAreas[0];
 
+<<<<<<< Updated upstream
             chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+=======
+<<<<<<< HEAD
+         //   chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+=======
+            chart.AxisX.IntervalType = System.Windows.Forms.DataVisualization.Charting.DateTimeIntervalType.Number;
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes
 
             chart.AxisX.LabelStyle.Format = "";
             chart.AxisY.LabelStyle.Format = "";
@@ -81,6 +123,24 @@ namespace SS_OpenCV
             chart1.Series[0].IsVisibleInLegend = false;
 
             chart1.Series.Add("Gray");
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+          //  chart1.Series["Gray"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series["Gray"].Color = Color.Gray;
+
+            chart1.Series.Add("Blue");
+          //  chart1.Series["Blue"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series["Blue"].Color = Color.Blue;
+
+            chart1.Series.Add("Green");
+         //   chart1.Series["Green"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            chart1.Series["Green"].Color = Color.LightGreen;
+
+            chart1.Series.Add("Red");
+         //   chart1.Series["Red"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+=======
+>>>>>>> Stashed changes
             chart1.Series["Gray"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             chart1.Series["Gray"].Color = Color.Gray;
 
@@ -94,6 +154,10 @@ namespace SS_OpenCV
 
             chart1.Series.Add("Red");
             chart1.Series["Red"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+<<<<<<< Updated upstream
+=======
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes
             chart1.Series["Red"].Color = Color.Red;
 
             for(int j = 0; j < 256; j++)
@@ -108,3 +172,10 @@ namespace SS_OpenCV
 
     }
 }
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+*/
+=======
+>>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
+>>>>>>> Stashed changes

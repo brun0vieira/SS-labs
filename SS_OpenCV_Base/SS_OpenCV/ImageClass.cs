@@ -1618,10 +1618,20 @@ namespace SS_OpenCV
         /// <returns>image with barcodes detected</returns>
         public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
         {
+            int[][] projections;
+            int[] v_projections, h_projections;
+
+            projections = Segmentation(img);
+            v_projections = projections[0];
+            h_projections = projections[1];
+
+            float[] centroid = CalculateCentroid(img, v_projections, h_projections);
+
             // first barcode
             bc_image1 = "5601212323434";
             bc_number1 = "9780201379624";
             bc_centroid1 = new Point(130, 60);
+            //bc_centroid1 = new Point((int)centroid[0], (int)centroid[1]);
             bc_size1 = new Size(200, 80);
 
             //second barcode
@@ -1635,8 +1645,98 @@ namespace SS_OpenCV
             bc_size1.Width,
             bc_size1.Height),
             new Bgr(0, 255, 0), 3);
+            
             return img;
+            
         }
+
+        // returns int[][] projections
+        // projections[0] - array containing vertical projections
+        // projections[1] - array containing horizontal projections
+        public static int[][] Segmentation(Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+
+                // default values of numeric array elements are set to zero
+                int[] vertical_projections = new int[width];
+                int[] horizontal_projections = new int[height];
+
+                for (y=0; y<height; y++)
+                {
+                    for(x=0; x<width; x++)
+                    {
+                        // binary image -> r,g,b components holds the same value - 0 (black) or 255 (white)
+                        // if it's a black pixel we increment the projection
+                        if (dataPtr[0] == 0 && dataPtr[1] == 0 && dataPtr[2] == 0)
+                        {
+                            vertical_projections[x]++;
+                            horizontal_projections[y]++;
+                        }
+
+                        dataPtr += nC;  
+                    }
+                    dataPtr += padding;
+                }
+
+                int[][] projections = new int[][] { vertical_projections, horizontal_projections };
+
+                return projections;
+            }
+        }
+        
+        public static float[] CalculateCentroid(Image<Bgr,byte> img, int[] vertical_projections, int[] horizontal_projections)
+        {
+            unsafe
+            {
+
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y, i, num_x=0, num_y=0, den_x=0, den_y=0;
+                float c_x, c_y;
+                float[] centroid = new float[2];
+
+
+                for(i=0; i<vertical_projections.Length; i++)
+                {
+                    num_x += vertical_projections[i] * i;
+                    den_x += vertical_projections[i];
+                }
+
+                for (i = 0; i < horizontal_projections.Length; i++)
+                {
+                    num_y += horizontal_projections[i] * i;
+                    den_y += horizontal_projections[i];
+                }
+
+                c_x = num_x / den_x;
+                c_y = num_y / den_y;
+                centroid[0] = c_x;
+                centroid[1] = c_y;
+
+                return centroid;
+
+            }
+
+        }
+
+
     }
 }
 

@@ -88,6 +88,14 @@
     <Compile Include="AuthorsForm.Designer.cs">
       <DependentUpon>AuthorsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Histogram.cs" />
+    <Compile Include="Histogram.Designer.cs">
+      <DependentUpon>Histogram.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HistogramLines.cs" />
+    <Compile Include="HistogramLines.Designer.cs">
+      <DependentUpon>HistogramLines.cs</DependentUpon>
+    </Compile>
     <Compile Include="ImageClass.cs" />
     <Compile Include="InputBox.cs">
       <SubType>Form</SubType>
@@ -102,10 +110,20 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="Prompt.cs" />
+    <Compile Include="Prompt.designer.cs">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AuthorsForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>AuthorsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Histogram.resx">
+      <DependentUpon>Histogram.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HistogramLines.resx">
+      <DependentUpon>HistogramLines.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="InputBox.resx">
       <DependentUpon>InputBox.cs</DependentUpon>
@@ -113,6 +131,9 @@
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Prompt.resx">
+      <DependentUpon>Prompt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -1619,13 +1619,13 @@ namespace SS_OpenCV
         public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
         {
             int[][] projections;
-            int[] v_projections, h_projections;
+            int[] vertical_projections, horizontal_projections;
 
             projections = Segmentation(img);
-            v_projections = projections[0];
-            h_projections = projections[1];
+            vertical_projections = projections[0];
+            horizontal_projections = projections[1];
 
-            float[] centroid = CalculateCentroid(img, v_projections, h_projections);
+            float[] centroid = CalculateCentroid(img, vertical_projections, horizontal_projections);
 
             // first barcode
             bc_image1 = "5601212323434";
@@ -1645,12 +1645,14 @@ namespace SS_OpenCV
             bc_size1.Width,
             bc_size1.Height),
             new Bgr(0, 255, 0), 3);
+
+            Solve(vertical_projections);
             
             return img;
             
         }
 
-        // returns int[][] projections
+        // returns int[][] 
         // projections[0] - array containing vertical projections
         // projections[1] - array containing horizontal projections
         public static int[][] Segmentation(Image<Bgr, byte> img)
@@ -1695,6 +1697,7 @@ namespace SS_OpenCV
             }
         }
         
+        // verificar
         public static float[] CalculateCentroid(Image<Bgr,byte> img, int[] vertical_projections, int[] horizontal_projections)
         {
             unsafe
@@ -1736,6 +1739,106 @@ namespace SS_OpenCV
 
         }
 
+        public static void Solve(int[] vertical_projections)
+        {
+            
+            int counter = 0;
+            foreach (int p in vertical_projections)
+            {
+                Console.WriteLine("Projection " + counter + ": " + p);
+                counter++;
+            }
+
+            int initial_position_1, final_position_1, initial_position_2, final_position_2;
+            int pixels_per_bit = 0;
+            int digits = 6;
+            int bits = 7;
+            int[] first_6_digits_projections;
+            int[] second_6_digits_projections;
+            int i, j;
+
+            // ir até à primeira barra (percorrer o vertical segmentation e ir ignorando até encontrar um valor alto - nao basta ser zero pois temos um digito antes da 1ª barra) 
+            // como definir este nr? *** por enquanto 50 ***
+
+            // estamos na primeira barra. verificar quantos pixeis tem a primeira barra que vale 1 bit.
+
+            i = 0;
+            while (vertical_projections[i] < 50)
+            {
+                i++;
+            }
+            
+            while(vertical_projections[i] > 50)
+            {
+                pixels_per_bit++;
+                i++;
+            }
+
+            // para irmos para a primeira posicao dos 6 primeiros digitos temos que passar a 2ª barra inicial 
+            i += 2 * pixels_per_bit;
+
+            first_6_digits_projections = new int[digits * bits * pixels_per_bit];
+            second_6_digits_projections = new int[digits * bits * pixels_per_bit];
+
+            initial_position_1 = i;
+
+            // estamos na primeira posicao dos 6 primeiros digitos
+            // a última posição dos 6 primeiros digitos é: posicao_atual + 6(digitos)*7(bits)*2(pixeis_por_bit) - 1
+            final_position_1 = initial_position_1 + digits*bits*pixels_per_bit - 1;
+            
+            // colocamos na variavel first_6_digits_projections as projecoes correspondentes aos 6 primeiros digitos para depois descodificar
+            for (j = 0; i <= final_position_1; i++, j++)
+            {
+                first_6_digits_projections[j] = vertical_projections[i];
+            }
+
+            // para irmos para a primeira posicao dos 6 secundos digitos temos que passar as barras intermedias
+            i += 5 * pixels_per_bit;
+            initial_position_2 = i;
+
+            // estamos na primeira posicao dos 6 segundos digitos
+            // a última posição dos 6 segundos digitos é: posicao_atual + 6(digitos)*7(bits)*2(pixeis_por_bit) - 1
+            final_position_2 = initial_position_2 + digits * bits * pixels_per_bit - 1;
+
+            // colocamos na variavel second_6_digits_projections as projecoes correspondentes aos 6 segundos digitos para depois descodificar
+            for (j = 0; i <= final_position_2; i++, j++)
+            {
+                second_6_digits_projections[j] = vertical_projections[i];
+            }
+
+            // temos que converter as projeções em bits
+            int[] first_6_digits_bits = new int[digits * bits];
+            for(i=0,j=0; i<first_6_digits_projections.Length; i+=2,j++)
+            {
+
+                if(first_6_digits_projections[i] < 50)
+                {
+                    first_6_digits_bits[j] = 0;
+                }
+                else
+                {
+                    first_6_digits_bits[j] = 1;
+                }
+            }
+
+            int[] second_6_digits_bits = new int[digits * bits];
+            for (i = 0, j = 0; i < second_6_digits_projections.Length; i += 2, j++)
+            {
+
+                if (second_6_digits_projections[i] < 50)
+                {
+                    second_6_digits_bits[j] = 0;
+                }
+                else
+                {
+                    second_6_digits_bits[j] = 1;
+                }
+            }
+            
+
+            // agora que temos todos os bits basta descodificar
+            // crie-se um dicionario com toda a codificação de CB
+        }
 
     }
 }

@@ -1824,7 +1824,6 @@ namespace SS_OpenCV
             int[] second_6_digits_bits = new int[digits * bits];
             for (i = 0, j = 0; i < second_6_digits_projections.Length; i += 2, j++)
             {
-
                 if (second_6_digits_projections[i] < 50)
                 {
                     second_6_digits_bits[j] = 0;
@@ -1834,10 +1833,47 @@ namespace SS_OpenCV
                     second_6_digits_bits[j] = 1;
                 }
             }
-            
 
+            DecodeDigits(first_6_digits_bits, second_6_digits_bits);
+
+        }
+
+        public static void DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
+        {
             // agora que temos todos os bits basta descodificar
             // crie-se um dicionario com toda a codificação de CB
+            // por enquanto temos apenas a codificação RRRRRRR e façamos apenas a descodificação dos últimos 6 digitos
+
+            int i;
+            string bits, aux, digit, second_6_digits;
+
+            var digits_codification = new Dictionary<string, string>(){
+                {"1110010","0"},
+                {"1100110","1"},
+                {"1101100","2"},
+                {"1000010","3"},
+                {"1011100","4"},
+                {"1001110","5"},
+                {"1010000","6"},
+                {"1000100","7"},
+                {"1001000","8"},
+                {"1110100","9"}
+            };
+
+            // string que contem todos os bits correspondentes aos 6 digitos
+            bits = string.Join("", second_6_digits_bits);
+
+            second_6_digits = digits_codification[bits.Substring(0, 7)];
+
+            for (i=7; i != 42; i+=7)
+            {
+                digit = digits_codification[bits.Substring(i, 7)];
+                aux = second_6_digits;
+                second_6_digits = aux + digit;
+            } 
+
+            Console.WriteLine(second_6_digits);
+   
         }
 
     }

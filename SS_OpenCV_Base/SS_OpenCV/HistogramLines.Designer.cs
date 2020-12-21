@@ -1,12 +1,4 @@
-<<<<<<< Updated upstream
-﻿namespace SS_OpenCV
-=======
-<<<<<<< HEAD
-﻿/*namespace SS_OpenCV
-=======
-﻿namespace SS_OpenCV
->>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
->>>>>>> Stashed changes
+/*namespace SS_OpenCV
 {
     partial class HistogramLines
     {
@@ -75,18 +67,6 @@
 
         #endregion
 
-<<<<<<< Updated upstream
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-    }
-}
-=======
-<<<<<<< HEAD
-       // private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
     }
 }*/
-=======
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-    }
-}
->>>>>>> b0517d1e7271c8b96e26529b2322c954d90c597b
->>>>>>> Stashed changes

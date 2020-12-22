@@ -1646,7 +1646,7 @@ namespace SS_OpenCV
             bc_size1.Height),
             new Bgr(0, 255, 0), 3);
 
-            Solve(vertical_projections);
+            ProjectionsToBits(vertical_projections);
             
             return img;
             
@@ -1739,7 +1739,7 @@ namespace SS_OpenCV
 
         }
 
-        public static void Solve(int[] vertical_projections)
+        public static void ProjectionsToBits(int[] vertical_projections)
         {
             
             int counter = 0;
@@ -1851,7 +1851,7 @@ namespace SS_OpenCV
             // por enquanto temos apenas a codificação RRRRRRR e façamos apenas a descodificação dos últimos 6 digitos
 
             int i;
-            string bits, aux, digit, first_6_digits, second_6_digits;
+            string bits, aux, digit, first_6_digits, second_6_digits, bar_code_number, aux_2, first_6_digits_type, digit_type, first_digit;
 
             // consoante os bits de cada digito dos 6 primeiros digitos conseguimos descobrir o 1º digito
             var first_digit_codification = new Dictionary<string, string>()
@@ -1903,23 +1903,28 @@ namespace SS_OpenCV
                 {"1001000", new DigitType {Digit="8",Type="R"} },
                 {"1110100", new DigitType {Digit="9",Type="R"} }
             };
-            
+
+            // string que contem todos os bits correspondentes aos primeiros 6 digitos
             bits = string.Join("", first_6_digits_bits);
 
+            // vai buscar ao dicionario os digitos correspondentes aos bits
             first_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
+            first_6_digits_type = digits_codification[bits.Substring(0, 7)].Type;
 
             for (i = 7; i != 42; i += 7)
             {
                 digit = digits_codification[bits.Substring(i, 7)].Digit;
+                digit_type = digits_codification[bits.Substring(i, 7)].Type;
                 aux = first_6_digits;
+                aux_2 = first_6_digits_type;
                 first_6_digits = aux + digit;
+                first_6_digits_type = aux_2 + digit_type;
             }
-
-            Console.WriteLine(first_6_digits);
 
             // string que contem todos os bits correspondentes aos segundos 6 digitos
             bits = string.Join("", second_6_digits_bits);
 
+            // vai buscar ao dicionario os digitos correspondentes aos bits
             second_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
 
             for (i=7; i != 42; i+=7)
@@ -1927,9 +1932,16 @@ namespace SS_OpenCV
                 digit = digits_codification[bits.Substring(i, 7)].Digit;
                 aux = second_6_digits;
                 second_6_digits = aux + digit;
-            } 
+            }
 
-            Console.WriteLine(second_6_digits);
+            // o primeiro digito é obtido através dos primeiros 6 digitos
+            // verificar o tipo de codificacao para cada digito (L ou G) e concatenar todos os tipos de forma a obtermos algo do tipo: LLRLRL (feito no for-loop da linha 1914)
+            // depois basta ir ao dicionario first_digit_codification obter o digito
+            first_digit = first_digit_codification[first_6_digits_type];
+
+            bar_code_number = first_digit + first_6_digits + second_6_digits;
+         
+            Console.WriteLine(bar_code_number);
    
         }
 

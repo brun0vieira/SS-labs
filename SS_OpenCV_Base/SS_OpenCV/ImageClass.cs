@@ -1612,9 +1612,9 @@ namespace SS_OpenCV
         /// <param name="bc_image1">output a string containing the first barcode read from the bars</param>
         /// <param name="bc_number1">output a string containing the first barcode read from the numbers in the bottom</param>
         /// <param name="bc_centroid2">output the centroid of the second barcode </param>
-        /// <param name="bc_size2">output the size of the second barcode</param>
-        /// <param name="bc_image2">output a string containing the second barcode read from the bars. It returns null, if it does not exist.</param>
-        /// <param name="bc_number2">output a string containing the second barcode read from the numbers in the bottom. It returns null, if it does not exist.</param>
+        ///// <param name="bc_size2">output the size of the second barcode</param>
+        ///// <param name="bc_image2">output a string containing the second barcode read from the bars. It returns null, if it does not exist.</param>
+        ///// <param name="bc_number2">output a string containing the second barcode read from the numbers in the bottom. It returns null, if it does not exist.</param>
         /// <returns>image with barcodes detected</returns>
         public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
         {
@@ -1838,6 +1838,12 @@ namespace SS_OpenCV
 
         }
 
+        class DigitType
+        {
+            public string Digit { get; set; }
+            public string Type  { get; set; }
+        }
+
         public static void DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
         {
             // agora que temos todos os bits basta descodificar
@@ -1845,29 +1851,80 @@ namespace SS_OpenCV
             // por enquanto temos apenas a codificação RRRRRRR e façamos apenas a descodificação dos últimos 6 digitos
 
             int i;
-            string bits, aux, digit, second_6_digits;
+            string bits, aux, digit, first_6_digits, second_6_digits;
 
-            var digits_codification = new Dictionary<string, string>(){
-                {"1110010","0"},
-                {"1100110","1"},
-                {"1101100","2"},
-                {"1000010","3"},
-                {"1011100","4"},
-                {"1001110","5"},
-                {"1010000","6"},
-                {"1000100","7"},
-                {"1001000","8"},
-                {"1110100","9"}
+            // consoante os bits de cada digito dos 6 primeiros digitos conseguimos descobrir o 1º digito
+            var first_digit_codification = new Dictionary<string, string>()
+            {
+                {"LLLLLL","0"},
+                {"LLGLGG","1"},
+                {"LLGGLG","2"},
+                {"LLGGGL","3"},
+                {"LGLLGG","4"},
+                {"LGGLLG","5"},
+                {"LGGGLL","6"},
+                {"LGLGLG","7"},
+                {"LGLGGL","8"},
+                {"LGGLGL","9"}
             };
 
-            // string que contem todos os bits correspondentes aos 6 digitos
+            var digits_codification = new Dictionary<string,DigitType>(){
+                // L-code
+                {"0001101", new DigitType {Digit="0",Type="L"} },
+                {"0011001", new DigitType {Digit="1",Type="L"} },
+                {"0010011", new DigitType {Digit="2",Type="L"} },
+                {"0111101", new DigitType {Digit="3",Type="L"} },
+                {"0100011", new DigitType {Digit="4",Type="L"} },
+                {"0110001", new DigitType {Digit="5",Type="L"} },
+                {"0101111", new DigitType {Digit="6",Type="L"} },
+                {"0111011", new DigitType {Digit="7",Type="L"} },
+                {"0110111", new DigitType {Digit="8",Type="L"} },
+                {"0001011", new DigitType {Digit="9",Type="L"} },
+                // G-code
+                {"0100111", new DigitType {Digit="0",Type="G"} },
+                {"0110011", new DigitType {Digit="1",Type="G"} },
+                {"0011011", new DigitType {Digit="2",Type="G"} },
+                {"0100001", new DigitType {Digit="3",Type="G"} },
+                {"0011101", new DigitType {Digit="4",Type="G"} },
+                {"0111001", new DigitType {Digit="5",Type="G"} },
+                {"0000101", new DigitType {Digit="6",Type="G"} },
+                {"0010001", new DigitType {Digit="7",Type="G"} },
+                {"0001001", new DigitType {Digit="8",Type="G"} },
+                {"0010111", new DigitType {Digit="9",Type="G"} },
+                // R-code
+                {"1110010", new DigitType {Digit="0",Type="R"} },
+                {"1100110", new DigitType {Digit="1",Type="R"} },
+                {"1101100", new DigitType {Digit="2",Type="R"} },
+                {"1000010", new DigitType {Digit="3",Type="R"} },
+                {"1011100", new DigitType {Digit="4",Type="R"} },
+                {"1001110", new DigitType {Digit="5",Type="R"} },
+                {"1010000", new DigitType {Digit="6",Type="R"} },
+                {"1000100", new DigitType {Digit="7",Type="R"} },
+                {"1001000", new DigitType {Digit="8",Type="R"} },
+                {"1110100", new DigitType {Digit="9",Type="R"} }
+            };
+            
+            bits = string.Join("", first_6_digits_bits);
+
+            first_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
+
+            for (i = 7; i != 42; i += 7)
+            {
+                digit = digits_codification[bits.Substring(i, 7)].Digit;
+                aux = first_6_digits;
+                first_6_digits = aux + digit;
+            }
+
+            Console.WriteLine(first_6_digits);
+
+            // string que contem todos os bits correspondentes aos segundos 6 digitos
             bits = string.Join("", second_6_digits_bits);
 
-            second_6_digits = digits_codification[bits.Substring(0, 7)];
+            second_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
 
             for (i=7; i != 42; i+=7)
             {
-                digit = digits_codification[bits.Substring(i, 7)];
+                digit = digits_codification[bits.Substring(i, 7)].Digit;
                 aux = second_6_digits;
                 second_6_digits = aux + digit;
             } 

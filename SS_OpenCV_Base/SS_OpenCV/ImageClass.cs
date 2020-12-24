@@ -1808,7 +1808,7 @@ namespace SS_OpenCV
 
             // temos que converter as projeções em bits
             int[] first_6_digits_bits = new int[digits * bits];
-            for(i=0,j=0; i<first_6_digits_projections.Length; i+=2,j++)
+            for(i=0,j=0; i<first_6_digits_projections.Length; i+=pixels_per_bit,j++)
             {
 
                 if(first_6_digits_projections[i] < 50)
@@ -1822,7 +1822,7 @@ namespace SS_OpenCV
             }
 
             int[] second_6_digits_bits = new int[digits * bits];
-            for (i = 0, j = 0; i < second_6_digits_projections.Length; i += 2, j++)
+            for (i = 0, j = 0; i < second_6_digits_projections.Length; i += pixels_per_bit, j++)
             {
                 if (second_6_digits_projections[i] < 50)
                 {

@@ -178,7 +178,7 @@ namespace SS_OpenCV
                             // advance the pointer to the next pixel
                             dataPtr += nChan;
                         }
-                        
+
                         //at the end of the line advance the pointer by the aligment bytes (padding)
                         dataPtr += padding;
                     }
@@ -312,16 +312,16 @@ namespace SS_OpenCV
                             blue = dataPtr[0];
                             green = dataPtr[1];
                             red = dataPtr[2];
-                            
+
                             blue_updated = blue * contrast + bright;
                             green_updated = green * contrast + bright;
                             red_updated = red * contrast + bright;
-                            
-                            if(blue_updated > 255)
+
+                            if (blue_updated > 255)
                             {
                                 blue_updated = 255;
                             }
-                            else if(blue_updated < 0)
+                            else if (blue_updated < 0)
                             {
                                 blue_updated = 0;
                             }
@@ -343,7 +343,7 @@ namespace SS_OpenCV
                             {
                                 red_updated = 0;
                             }
-                            
+
                             dataPtr[0] = (byte)Math.Round(blue_updated);
                             dataPtr[1] = (byte)Math.Round(green_updated);
                             dataPtr[2] = (byte)Math.Round(red_updated);
@@ -360,13 +360,13 @@ namespace SS_OpenCV
         }
 
         public static void Translation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, int dx, int dy)
-        { 
+        {
             unsafe
             {
                 // obter apontador do inicio da imagem
                 MIplImage m = imgCopy.MIplImage;
                 byte* dataPtr = (byte*)m.imageData.ToPointer();
-                
+
                 MIplImage m_dest = img.MIplImage;
                 byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
@@ -435,11 +435,11 @@ namespace SS_OpenCV
                 double half_width = width / 2.0;
                 double half_height = height / 2.0;
 
-                if(nChannels == 3) // RGB   
+                if (nChannels == 3) // RGB   
                 {
-                    for(y = 0; y < height; y++)
+                    for (y = 0; y < height; y++)
                     {
-                        for(x = 0; x < width; x++)
+                        for (x = 0; x < width; x++)
                         {
                             x_orig = (int)Math.Round((x - half_width) * cos - (half_height - y) * sin + half_width);
                             y_orig = (int)Math.Round(half_height - (x - half_width) * sin - (half_height - y) * cos);
@@ -456,7 +456,7 @@ namespace SS_OpenCV
                                 dataPtr_dest[1] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[1];
                                 dataPtr_dest[2] = (byte)(dataPtr + y_orig * widthstep + x_orig * nChannels)[2];
                             }
-                    
+
                             dataPtr_dest += nChannels;
                         }
                         dataPtr_dest += padding;
@@ -470,7 +470,7 @@ namespace SS_OpenCV
         {
             unsafe
             {
-                
+
                 MIplImage m = imgCopy.MIplImage;
                 byte* dataPtr = (byte*)m.imageData.ToPointer();
 
@@ -485,7 +485,7 @@ namespace SS_OpenCV
                 int x, y;
                 int x_orig, y_orig;
 
-                if(nChannels == 3)
+                if (nChannels == 3)
                 {
                     for (y = 0; y < height; y++)
                     {
@@ -494,7 +494,7 @@ namespace SS_OpenCV
                             x_orig = (int)Math.Round(x / scaleFactor);
                             y_orig = (int)Math.Round(y / scaleFactor);
 
-                            if(x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
+                            if (x_orig < 0 || y_orig < 0 || x_orig >= width || y_orig >= height)
                             {
                                 dataPtr_dest[0] = 0;
                                 dataPtr_dest[1] = 0;
@@ -511,7 +511,7 @@ namespace SS_OpenCV
                         dataPtr_dest += padding;
                     }
                 }
-                
+
             }
         }
 
@@ -615,7 +615,7 @@ namespace SS_OpenCV
                             dataPtr += nC;
 
                         }
-                        dataPtr_dest += padding + 2 * nC; 
+                        dataPtr_dest += padding + 2 * nC;
                         dataPtr += padding + 2 * nC;
                     }
 
@@ -758,24 +758,24 @@ namespace SS_OpenCV
                 MIplImage m_dest = imgCopy.MIplImage;
                 byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
-                int width = img.Width; 
-                int height = img.Height; 
-                int nC = m.nChannels; 
-                int widthstep = m.widthStep; 
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
                 int padding = widthstep - nC * width;
 
                 double blue, red, green;
                 int x, y;
-                
-                if(nC == 3)
+
+                if (nC == 3)
                 {
                     // without borders
                     dataPtr += widthstep + nC;
                     dataPtr_dest += widthstep + nC;
-                    
-                    for (y=1; y<height-1; y++)
+
+                    for (y = 1; y < height - 1; y++)
                     {
-                        for (x=1; x<width-1; x++)
+                        for (x = 1; x < width - 1; x++)
                         {
                             blue = ((dataPtr_dest - widthstep - nC)[0] * matrix[0, 0] + (dataPtr_dest - widthstep)[0] * matrix[0, 1] + (dataPtr_dest - widthstep + nC)[0] * matrix[0, 2] + (dataPtr_dest - nC)[0] * matrix[1, 0] + dataPtr_dest[0] * matrix[1, 1] + (dataPtr + nC)[0] * matrix[1, 2] + (dataPtr_dest + widthstep - nC)[0] * matrix[2, 0] + (dataPtr_dest + widthstep)[0] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[0] * matrix[2, 2]) / matrixWeight;
                             green = ((dataPtr_dest - widthstep - nC)[1] * matrix[0, 0] + (dataPtr_dest - widthstep)[1] * matrix[0, 1] + (dataPtr_dest - widthstep + nC)[1] * matrix[0, 2] + (dataPtr_dest - nC)[1] * matrix[1, 0] + dataPtr_dest[1] * matrix[1, 1] + (dataPtr + nC)[1] * matrix[1, 2] + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
@@ -799,7 +799,7 @@ namespace SS_OpenCV
                     dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
                     // canto superior esquerdo
-                    blue = (dataPtr_dest[0] * (matrix[0,0] + matrix[0,1] + matrix[1,0] + matrix[1,1]) + (dataPtr_dest+nC)[0] * (matrix[0,2] + matrix[1,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                    blue = (dataPtr_dest[0] * (matrix[0, 0] + matrix[0, 1] + matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[0] * (matrix[0, 2] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[0] * matrix[2, 0] + (dataPtr_dest + widthstep)[0] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[0] * matrix[2, 2]) / matrixWeight;
                     green = (dataPtr_dest[1] * (matrix[0, 0] + matrix[0, 1] + matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[1] * (matrix[0, 2] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
                     red = (dataPtr_dest[2] * (matrix[0, 0] + matrix[0, 1] + matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[2] * (matrix[0, 2] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
 
@@ -811,9 +811,9 @@ namespace SS_OpenCV
                     dataPtr_dest += nC;
 
                     // 1ª linha (sem cantos)
-                    for(x=1; x<width-1; x++)
+                    for (x = 1; x < width - 1; x++)
                     {
-                        blue = ((dataPtr_dest-nC)[0] * (matrix[0,0] + matrix[1,0]) + dataPtr_dest[0] * (matrix[0,1] + matrix[1,1]) + (dataPtr_dest+nC)[0] * (matrix[1,2] + matrix[0,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                        blue = ((dataPtr_dest - nC)[0] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[0] * (matrix[0, 1] + matrix[1, 1]) + (dataPtr_dest + nC)[0] * (matrix[1, 2] + matrix[0, 2]) + (dataPtr_dest + widthstep - nC)[0] * matrix[2, 0] + (dataPtr_dest + widthstep)[0] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[0] * matrix[2, 2]) / matrixWeight;
                         green = ((dataPtr_dest - nC)[1] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[1] * (matrix[0, 1] + matrix[1, 1]) + (dataPtr_dest + nC)[1] * (matrix[1, 2] + matrix[0, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
                         red = ((dataPtr_dest - nC)[2] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[2] * (matrix[0, 1] + matrix[1, 1]) + (dataPtr_dest + nC)[2] * (matrix[1, 2] + matrix[0, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
 
@@ -826,7 +826,7 @@ namespace SS_OpenCV
                     }
 
                     // canto superior direito
-                    blue = ((dataPtr_dest-nC)[0] * (matrix[0,0] + matrix[1,0]) + dataPtr_dest[0] * (matrix[0,1] + matrix[0,2] + matrix[1,1] + matrix[1,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * matrix[2,1] + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                    blue = ((dataPtr_dest - nC)[0] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[0] * (matrix[0, 1] + matrix[0, 2] + matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[0] * matrix[2, 0] + (dataPtr_dest + widthstep)[0] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[0] * matrix[2, 2]) / matrixWeight;
                     green = ((dataPtr_dest - nC)[1] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[1] * (matrix[0, 1] + matrix[0, 2] + matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
                     red = ((dataPtr_dest - nC)[2] * (matrix[0, 0] + matrix[1, 0]) + dataPtr_dest[2] * (matrix[0, 1] + matrix[0, 2] + matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * matrix[2, 1] + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
 
@@ -840,9 +840,9 @@ namespace SS_OpenCV
                 dataPtr_dest += widthstep;
 
                 // coluna lateral direita (sem cantos)
-                for(y=1; y<height-1;y++)
+                for (y = 1; y < height - 1; y++)
                 {
-                    blue = ((dataPtr_dest-widthstep-nC)[0] * matrix[0,0] + (dataPtr_dest-widthstep)[0] * (matrix[0,1] + matrix[0,2]) + (dataPtr_dest-nC)[0] * matrix[1,0] + dataPtr_dest[0] * (matrix[1,1] + matrix[1,2]) + (dataPtr_dest+widthstep-nC)[0] * matrix[2,0] + (dataPtr_dest+widthstep)[0] * (matrix[2,1] + matrix[2,2])) / matrixWeight;
+                    blue = ((dataPtr_dest - widthstep - nC)[0] * matrix[0, 0] + (dataPtr_dest - widthstep)[0] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[0] * matrix[1, 0] + dataPtr_dest[0] * (matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[0] * matrix[2, 0] + (dataPtr_dest + widthstep)[0] * (matrix[2, 1] + matrix[2, 2])) / matrixWeight;
                     green = ((dataPtr_dest - widthstep - nC)[1] * matrix[0, 0] + (dataPtr_dest - widthstep)[1] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[1] * matrix[1, 0] + dataPtr_dest[1] * (matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[1] * matrix[2, 0] + (dataPtr_dest + widthstep)[1] * (matrix[2, 1] + matrix[2, 2])) / matrixWeight;
                     red = ((dataPtr_dest - widthstep - nC)[2] * matrix[0, 0] + (dataPtr_dest - widthstep)[2] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[2] * matrix[1, 0] + dataPtr_dest[2] * (matrix[1, 1] + matrix[1, 2]) + (dataPtr_dest + widthstep - nC)[2] * matrix[2, 0] + (dataPtr_dest + widthstep)[2] * (matrix[2, 1] + matrix[2, 2])) / matrixWeight;
 
@@ -855,7 +855,7 @@ namespace SS_OpenCV
                 }
 
                 // canto inferior direito
-                blue = ((dataPtr_dest-widthstep-nC)[0] * matrix[0,0] + (dataPtr_dest-widthstep)[0] * (matrix[0,1] + matrix[0,2]) + (dataPtr_dest-nC)[0] * (matrix[1,0] + matrix[2,0]) + dataPtr_dest[0] * (matrix[1,1] + matrix[1,2] + matrix[2,1] + matrix[2,2])) / matrixWeight;
+                blue = ((dataPtr_dest - widthstep - nC)[0] * matrix[0, 0] + (dataPtr_dest - widthstep)[0] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[0] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[0] * (matrix[1, 1] + matrix[1, 2] + matrix[2, 1] + matrix[2, 2])) / matrixWeight;
                 green = ((dataPtr_dest - widthstep - nC)[1] * matrix[0, 0] + (dataPtr_dest - widthstep)[1] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[1] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[1] * (matrix[1, 1] + matrix[1, 2] + matrix[2, 1] + matrix[2, 2])) / matrixWeight;
                 red = ((dataPtr_dest - widthstep - nC)[2] * matrix[0, 0] + (dataPtr_dest - widthstep)[2] * (matrix[0, 1] + matrix[0, 2]) + (dataPtr_dest - nC)[2] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[2] * (matrix[1, 1] + matrix[1, 2] + matrix[2, 1] + matrix[2, 2])) / matrixWeight;
 
@@ -867,9 +867,9 @@ namespace SS_OpenCV
                 dataPtr_dest -= nC;
 
                 // última linha (sem cantos)
-                for(x=1; x<width-1; x++)
+                for (x = 1; x < width - 1; x++)
                 {
-                    blue = ((dataPtr_dest-widthstep-nC)[0] * matrix[0,0] + (dataPtr_dest-widthstep)[0] * matrix[0,1] + (dataPtr_dest-widthstep+nC)[0] * matrix[0,2] + (dataPtr_dest-nC)[0] * (matrix[1,0] + matrix[2,0]) + dataPtr_dest[0]* (matrix[1,1] + matrix[2,1]) + (dataPtr_dest+nC)[0] * (matrix[1,2] + matrix[2,2])) / matrixWeight;
+                    blue = ((dataPtr_dest - widthstep - nC)[0] * matrix[0, 0] + (dataPtr_dest - widthstep)[0] * matrix[0, 1] + (dataPtr_dest - widthstep + nC)[0] * matrix[0, 2] + (dataPtr_dest - nC)[0] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[0] * (matrix[1, 1] + matrix[2, 1]) + (dataPtr_dest + nC)[0] * (matrix[1, 2] + matrix[2, 2])) / matrixWeight;
                     green = ((dataPtr_dest - widthstep - nC)[1] * matrix[0, 0] + (dataPtr_dest - widthstep)[1] * matrix[0, 1] + (dataPtr_dest - widthstep + nC)[1] * matrix[0, 2] + (dataPtr_dest - nC)[1] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[1] * (matrix[1, 1] + matrix[2, 1]) + (dataPtr_dest + nC)[1] * (matrix[1, 2] + matrix[2, 2])) / matrixWeight;
                     red = ((dataPtr_dest - widthstep - nC)[2] * matrix[0, 0] + (dataPtr_dest - widthstep)[2] * matrix[0, 1] + (dataPtr_dest - widthstep + nC)[2] * matrix[0, 2] + (dataPtr_dest - nC)[2] * (matrix[1, 0] + matrix[2, 0]) + dataPtr_dest[2] * (matrix[1, 1] + matrix[2, 1]) + (dataPtr_dest + nC)[2] * (matrix[1, 2] + matrix[2, 2])) / matrixWeight;
 
@@ -883,7 +883,7 @@ namespace SS_OpenCV
                 }
 
                 // canto inferior esquerdo
-                blue = ((dataPtr_dest-widthstep)[0] * (matrix[0,0] + matrix[0,1]) + (dataPtr_dest-widthstep+nC)[0] * matrix[0,2] + (dataPtr_dest+nC)[0] * (matrix[1,2] + matrix[2,2]) + dataPtr_dest[0] * (matrix[1,0] + matrix[1,1] + matrix[2,0] + matrix[2,1])) / matrixWeight;
+                blue = ((dataPtr_dest - widthstep)[0] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[0] * matrix[0, 2] + (dataPtr_dest + nC)[0] * (matrix[1, 2] + matrix[2, 2]) + dataPtr_dest[0] * (matrix[1, 0] + matrix[1, 1] + matrix[2, 0] + matrix[2, 1])) / matrixWeight;
                 green = ((dataPtr_dest - widthstep)[1] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[1] * matrix[0, 2] + (dataPtr_dest + nC)[1] * (matrix[1, 2] + matrix[2, 2]) + dataPtr_dest[1] * (matrix[1, 0] + matrix[1, 1] + matrix[2, 0] + matrix[2, 1])) / matrixWeight;
                 red = ((dataPtr_dest - widthstep)[2] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[2] * matrix[0, 2] + (dataPtr_dest + nC)[2] * (matrix[1, 2] + matrix[2, 2]) + dataPtr_dest[2] * (matrix[1, 0] + matrix[1, 1] + matrix[2, 0] + matrix[2, 1])) / matrixWeight;
 
@@ -895,10 +895,10 @@ namespace SS_OpenCV
                 dataPtr_dest -= widthstep;
 
                 // coluna lateral esquerda (sem cantos)
-                for(y=1; y<height-1;y++)
+                for (y = 1; y < height - 1; y++)
                 {
 
-                    blue = ((dataPtr_dest-widthstep)[0] * (matrix[0,0] + matrix[0,1]) + (dataPtr_dest-widthstep+nC)[0] * matrix[0,2] + dataPtr_dest[0] * (matrix[1,0] + matrix[1,1]) + (dataPtr_dest + nC)[0] * matrix[1,2] + (dataPtr_dest+widthstep)[0] * (matrix[2,0] + matrix[2,1]) + (dataPtr_dest+widthstep+nC)[0] * matrix[2,2]) / matrixWeight;
+                    blue = ((dataPtr_dest - widthstep)[0] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[0] * matrix[0, 2] + dataPtr_dest[0] * (matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[0] * matrix[1, 2] + (dataPtr_dest + widthstep)[0] * (matrix[2, 0] + matrix[2, 1]) + (dataPtr_dest + widthstep + nC)[0] * matrix[2, 2]) / matrixWeight;
                     green = ((dataPtr_dest - widthstep)[1] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[1] * matrix[0, 2] + dataPtr_dest[1] * (matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[1] * matrix[1, 2] + (dataPtr_dest + widthstep)[1] * (matrix[2, 0] + matrix[2, 1]) + (dataPtr_dest + widthstep + nC)[1] * matrix[2, 2]) / matrixWeight;
                     red = ((dataPtr_dest - widthstep)[2] * (matrix[0, 0] + matrix[0, 1]) + (dataPtr_dest - widthstep + nC)[2] * matrix[0, 2] + dataPtr_dest[2] * (matrix[1, 0] + matrix[1, 1]) + (dataPtr_dest + nC)[2] * matrix[1, 2] + (dataPtr_dest + widthstep)[2] * (matrix[2, 0] + matrix[2, 1]) + (dataPtr_dest + widthstep + nC)[2] * matrix[2, 2]) / matrixWeight;
 
@@ -1098,13 +1098,13 @@ namespace SS_OpenCV
                     {
 
                         blue_x = (dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest - nC)[0] * 3 - ((dataPtr_dest - widthstep + nC)[0] + (dataPtr_dest + nC)[0] * 3);
-                        blue_y = (dataPtr_dest - nC)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + nC)[0] - ((dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest-widthstep)[0]*2 + (dataPtr_dest - widthstep + nC)[0]);
+                        blue_y = (dataPtr_dest - nC)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + nC)[0] - ((dataPtr_dest - widthstep - nC)[0] + (dataPtr_dest - widthstep)[0] * 2 + (dataPtr_dest - widthstep + nC)[0]);
 
                         green_x = (dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - nC)[1] * 3 - ((dataPtr_dest - widthstep + nC)[1] + (dataPtr_dest + nC)[1] * 3);
-                        green_y = (dataPtr_dest - nC)[1] + dataPtr_dest[1] * 2 + (dataPtr_dest + nC)[1] - ((dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - widthstep)[1]*2 + (dataPtr_dest - widthstep + nC)[1]);
+                        green_y = (dataPtr_dest - nC)[1] + dataPtr_dest[1] * 2 + (dataPtr_dest + nC)[1] - ((dataPtr_dest - widthstep - nC)[1] + (dataPtr_dest - widthstep)[1] * 2 + (dataPtr_dest - widthstep + nC)[1]);
 
                         red_x = (dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - nC)[2] * 3 - ((dataPtr_dest - widthstep + nC)[2] + (dataPtr_dest + nC)[2] * 3);
-                        red_y = (dataPtr_dest - nC)[2] + dataPtr_dest[2] * 2 + (dataPtr_dest + nC)[2] - ((dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - widthstep)[2]*2 + (dataPtr_dest - widthstep + nC)[2]);
+                        red_y = (dataPtr_dest - nC)[2] + dataPtr_dest[2] * 2 + (dataPtr_dest + nC)[2] - ((dataPtr_dest - widthstep - nC)[2] + (dataPtr_dest - widthstep)[2] * 2 + (dataPtr_dest - widthstep + nC)[2]);
 
                         blue = Math.Abs(blue_x) + Math.Abs(blue_y);
                         green = Math.Abs(green_x) + Math.Abs(green_y);
@@ -1145,8 +1145,8 @@ namespace SS_OpenCV
                     for (y = 1; y < (height - 1); y++)
                     {
 
-                        blue_x = (dataPtr_dest - widthstep)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + widthstep)[0] - ((dataPtr_dest-widthstep+nC)[0] + (dataPtr_dest+nC)[0]*2 + (dataPtr_dest+widthstep+nC)[0]);
-                        blue_y = (dataPtr_dest + widthstep)[0] * 3 + (dataPtr_dest + widthstep + nC)[0] - ((dataPtr_dest-widthstep)[0]*3 + (dataPtr_dest-widthstep+nC)[0]);
+                        blue_x = (dataPtr_dest - widthstep)[0] + dataPtr_dest[0] * 2 + (dataPtr_dest + widthstep)[0] - ((dataPtr_dest - widthstep + nC)[0] + (dataPtr_dest + nC)[0] * 2 + (dataPtr_dest + widthstep + nC)[0]);
+                        blue_y = (dataPtr_dest + widthstep)[0] * 3 + (dataPtr_dest + widthstep + nC)[0] - ((dataPtr_dest - widthstep)[0] * 3 + (dataPtr_dest - widthstep + nC)[0]);
 
                         green_x = (dataPtr_dest - widthstep)[1] + dataPtr_dest[1] * 2 + (dataPtr_dest + widthstep)[1] - ((dataPtr_dest - widthstep + nC)[1] + (dataPtr_dest + nC)[1] * 2 + (dataPtr_dest + widthstep + nC)[1]);
                         green_y = (dataPtr_dest + widthstep)[1] * 3 + (dataPtr_dest + widthstep + nC)[1] - ((dataPtr_dest - widthstep)[1] * 3 + (dataPtr_dest - widthstep + nC)[1]);
@@ -1171,8 +1171,8 @@ namespace SS_OpenCV
         }
 
         public static void Diferentiation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
-        { 
-           
+        {
+
             unsafe
             {
 
@@ -1222,7 +1222,7 @@ namespace SS_OpenCV
                     dataPtr = (byte*)m.imageData.ToPointer();
                     dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
 
-                    for(x = 0; x < (width-1); x++)
+                    for (x = 0; x < (width - 1); x++)
                     {
                         blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]) + Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
                         green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]) + Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
@@ -1247,7 +1247,7 @@ namespace SS_OpenCV
                     dataPtr += widthstep;
                     dataPtr_dest += widthstep;
 
-                    for (y=1; y < (height-1); y++)
+                    for (y = 1; y < (height - 1); y++)
                     {
                         blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
                         green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
@@ -1268,7 +1268,7 @@ namespace SS_OpenCV
                     dataPtr -= nC;
                     dataPtr_dest -= nC;
 
-                    for(x=1; x < (width-1); x++)
+                    for (x = 1; x < (width - 1); x++)
                     {
                         blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]);
                         green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]);
@@ -1293,7 +1293,7 @@ namespace SS_OpenCV
                     dataPtr -= widthstep;
                     dataPtr_dest -= widthstep;
 
-                    for(y=1; y< (height-1); y++)
+                    for (y = 1; y < (height - 1); y++)
                     {
                         blue = Math.Abs(dataPtr_dest[0] - (dataPtr_dest + nC)[0]) + Math.Abs(dataPtr_dest[0] - (dataPtr_dest + widthstep)[0]);
                         green = Math.Abs(dataPtr_dest[1] - (dataPtr_dest + nC)[1]) + Math.Abs(dataPtr_dest[1] - (dataPtr_dest + widthstep)[1]);
@@ -1332,12 +1332,12 @@ namespace SS_OpenCV
                 int padding = m.widthStep - m.nChannels * m.width;
                 int x, y;
                 int[] vector = new int[256];
-                
-                if(nC == 3)
+
+                if (nC == 3)
                 {
-                    for(y=0; y<height; y++)
+                    for (y = 0; y < height; y++)
                     {
-                        for(x=0; x<width; x++)
+                        for (x = 0; x < width; x++)
                         {
                             blue = dataPtr[0];
                             green = dataPtr[1];
@@ -1370,7 +1370,7 @@ namespace SS_OpenCV
                 int nC = m.nChannels;
                 int padding = m.widthStep - m.nChannels * m.width;
                 int x, y;
-                int[,] matrix = new int[3,256];
+                int[,] matrix = new int[3, 256];
 
                 if (nC == 3)
                 {
@@ -1382,11 +1382,11 @@ namespace SS_OpenCV
                             green = dataPtr[1];
                             red = dataPtr[2];
 
-                            
-                            matrix[0,blue]++;
-                            matrix[1,green]++;
-                            matrix[2,red]++;
-            
+
+                            matrix[0, blue]++;
+                            matrix[1, green]++;
+                            matrix[2, red]++;
+
                             dataPtr += nC;
                         }
                         dataPtr += padding;
@@ -1422,7 +1422,7 @@ namespace SS_OpenCV
                             green = dataPtr[1];
                             red = dataPtr[2];
 
-                            gray = (byte)Math.Round(((int)blue+green+red) / 3.0);
+                            gray = (byte)Math.Round(((int)blue + green + red) / 3.0);
 
                             matrix[0, gray]++;
                             matrix[1, blue]++;
@@ -1459,11 +1459,11 @@ namespace SS_OpenCV
                 int[] vector = new int[256];
                 double[] newH = new double[256];
 
-                if(nC == 3)
+                if (nC == 3)
                 {
-                    for(y=0; y<height;y++)
+                    for (y = 0; y < height; y++)
                     {
-                        for(x=0; x<width; x++)
+                        for (x = 0; x < width; x++)
                         {
                             Y = dataPtr[0];
 
@@ -1474,21 +1474,21 @@ namespace SS_OpenCV
                         dataPtr += padding;
                     }
 
-                    for(i=0; i<=255; i++)
+                    for (i = 0; i <= 255; i++)
                     {
                         if (acumHistMin == 0)
                             acumHistMin = vector[i];
 
                         acumHist += vector[i];
 
-                        newH[i] = Math.Round((((double)acumHist-acumHistMin)/(wXh - acumHistMin))*255);
+                        newH[i] = Math.Round((((double)acumHist - acumHistMin) / (wXh - acumHistMin)) * 255);
                     }
 
                     dataPtr = (byte*)m.imageData.ToPointer();
 
-                    for(y=0; y<height; y++)
+                    for (y = 0; y < height; y++)
                     {
-                        for(x=0; x<width; x++)
+                        for (x = 0; x < width; x++)
                         {
                             dataPtr[0] = (byte)newH[dataPtr[0]];
 
@@ -1518,18 +1518,18 @@ namespace SS_OpenCV
                 int x, y;
                 int[] vector = new int[256];
 
-                for(y=0; y<height;y++)
+                for (y = 0; y < height; y++)
                 {
-                    for(x=0; x<width; x++)
+                    for (x = 0; x < width; x++)
                     {
 
                         blue = dataPtr[0];
                         green = dataPtr[1];
                         red = dataPtr[2];
 
-                        gray = (byte)Math.Round(((int)blue + green + red)/ 3.0);
+                        gray = (byte)Math.Round(((int)blue + green + red) / 3.0);
 
-                        gray = (byte)(gray<=threshold ? 0 : 255);
+                        gray = (byte)(gray <= threshold ? 0 : 255);
 
                         dataPtr[0] = gray;
                         dataPtr[1] = gray;
@@ -1586,7 +1586,7 @@ namespace SS_OpenCV
 
         public static void ConvertToBW_Otsu(Emgu.CV.Image<Bgr, byte> img)
         {
-             unsafe
+            unsafe
             {
                 MIplImage m = img.MIplImage;
                 byte* dataPtr = (byte*)m.imageData.ToPointer();
@@ -1597,10 +1597,76 @@ namespace SS_OpenCV
                 int nPixels = width * height;
 
                 int[] hist = Histogram_Gray(img);
-                int threshold = OTSU(hist,nPixels);
+                int threshold = OTSU(hist, nPixels);
                 ImageClass.ConvertToBW(img, threshold);
             }
         }
+
+
+        // Morphological operation: Dilatation
+        // Structure object (5x5 kernel) :
+        // 11111
+        // 11111
+        // 11111
+        // 11111
+        public static void Dilatation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                MIplImage m_dest = imgCopy.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+
+                int x, y;
+
+                dataPtr += 2 * widthstep + 2 * nC;
+                dataPtr_dest += 2 * widthstep + 2 * nC;
+
+                if (nC == 3)
+                {
+                    for (y = 2; y < (height - 2); y++) // all but margins
+                    {
+
+                        for (x = 2; x < (width - 2); x++)
+                        {
+
+                            if ((dataPtr_dest - nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * widthstep)[0] != 0 || (dataPtr_dest + nC - 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - 2 * widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC - widthstep)[0] != 0 || (dataPtr_dest - widthstep)[0] != 0 || (dataPtr_dest + nC - widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC)[0] != 0 || dataPtr_dest[0] != 0 || (dataPtr_dest + nC)[0] != 0 || (dataPtr_dest + 2 * nC)[0] != 0 || (dataPtr_dest - 2 * nC)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC + widthstep)[0] != 0 || (dataPtr_dest + widthstep)[0] != 0 || (dataPtr_dest + nC + widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * widthstep)[0] != 0 || (dataPtr_dest + nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + 2 * widthstep)[0] != 0
+                                )
+                            {
+                                dataPtr[0] = (byte)(255);
+                                dataPtr[1] = (byte)(255);
+                                dataPtr[2] = (byte)(255);
+                            }
+
+
+                            dataPtr_dest += nC;
+                            dataPtr += nC;
+
+                        }
+                        dataPtr_dest += padding + 4 * nC; // nC to gett out of the margin
+                        dataPtr += padding + 4 * nC;
+                    }
+                }
+            }
+        }
+
+        public static void Erosion(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
+        {
+
+        }
+
 
         /// <summary>
         /// Barcode reader - SS final project
@@ -1647,9 +1713,9 @@ namespace SS_OpenCV
             new Bgr(0, 255, 0), 3);
 
             ProjectionsToBits(vertical_projections);
-            
+
             return img;
-            
+
         }
 
         // returns int[][] 
@@ -1674,9 +1740,9 @@ namespace SS_OpenCV
                 int[] vertical_projections = new int[width];
                 int[] horizontal_projections = new int[height];
 
-                for (y=0; y<height; y++)
+                for (y = 0; y < height; y++)
                 {
-                    for(x=0; x<width; x++)
+                    for (x = 0; x < width; x++)
                     {
                         // binary image -> r,g,b components holds the same value - 0 (black) or 255 (white)
                         // if it's a black pixel we increment the projection
@@ -1686,7 +1752,7 @@ namespace SS_OpenCV
                             horizontal_projections[y]++;
                         }
 
-                        dataPtr += nC;  
+                        dataPtr += nC;
                     }
                     dataPtr += padding;
                 }
@@ -1696,9 +1762,9 @@ namespace SS_OpenCV
                 return projections;
             }
         }
-        
+
         // verificar
-        public static float[] CalculateCentroid(Image<Bgr,byte> img, int[] vertical_projections, int[] horizontal_projections)
+        public static float[] CalculateCentroid(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections)
         {
             unsafe
             {
@@ -1711,12 +1777,12 @@ namespace SS_OpenCV
                 int nC = m.nChannels;
                 int widthstep = m.widthStep;
                 int padding = m.widthStep - m.nChannels * m.width;
-                int x, y, i, num_x=0, num_y=0, den_x=0, den_y=0;
+                int x, y, i, num_x = 0, num_y = 0, den_x = 0, den_y = 0;
                 float c_x, c_y;
                 float[] centroid = new float[2];
 
 
-                for(i=0; i<vertical_projections.Length; i++)
+                for (i = 0; i < vertical_projections.Length; i++)
                 {
                     num_x += vertical_projections[i] * i;
                     den_x += vertical_projections[i];
@@ -1741,7 +1807,7 @@ namespace SS_OpenCV
 
         public static void ProjectionsToBits(int[] vertical_projections)
         {
-            
+
             int counter = 0;
             foreach (int p in vertical_projections)
             {
@@ -1767,8 +1833,8 @@ namespace SS_OpenCV
             {
                 i++;
             }
-            
-            while(vertical_projections[i] > 50)
+
+            while (vertical_projections[i] > 50)
             {
                 pixels_per_bit++;
                 i++;
@@ -1784,8 +1850,8 @@ namespace SS_OpenCV
 
             // estamos na primeira posicao dos 6 primeiros digitos
             // a última posição dos 6 primeiros digitos é: posicao_atual + 6(digitos)*7(bits)*2(pixeis_por_bit) - 1
-            final_position_1 = initial_position_1 + digits*bits*pixels_per_bit - 1;
-            
+            final_position_1 = initial_position_1 + digits * bits * pixels_per_bit - 1;
+
             // colocamos na variavel first_6_digits_projections as projecoes correspondentes aos 6 primeiros digitos para depois descodificar
             for (j = 0; i <= final_position_1; i++, j++)
             {
@@ -1808,10 +1874,10 @@ namespace SS_OpenCV
 
             // temos que converter as projeções em bits
             int[] first_6_digits_bits = new int[digits * bits];
-            for(i=0,j=0; i<first_6_digits_projections.Length; i+=pixels_per_bit,j++)
+            for (i = 0, j = 0; i < first_6_digits_projections.Length; i += pixels_per_bit, j++)
             {
 
-                if(first_6_digits_projections[i] < 50)
+                if (first_6_digits_projections[i] < 50)
                 {
                     first_6_digits_bits[j] = 0;
                 }
@@ -1841,7 +1907,7 @@ namespace SS_OpenCV
         class DigitType
         {
             public string Digit { get; set; }
-            public string Type  { get; set; }
+            public string Type { get; set; }
         }
 
         public static void DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
@@ -1868,7 +1934,7 @@ namespace SS_OpenCV
                 {"LGGLGL","9"}
             };
 
-            var digits_codification = new Dictionary<string,DigitType>(){
+            var digits_codification = new Dictionary<string, DigitType>(){
                 // L-code
                 {"0001101", new DigitType {Digit="0",Type="L"} },
                 {"0011001", new DigitType {Digit="1",Type="L"} },
@@ -1927,7 +1993,7 @@ namespace SS_OpenCV
             // vai buscar ao dicionario os digitos correspondentes aos bits
             second_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
 
-            for (i=7; i != 42; i+=7)
+            for (i = 7; i != 42; i += 7)
             {
                 digit = digits_codification[bits.Substring(i, 7)].Digit;
                 aux = second_6_digits;
@@ -1940,13 +2006,12 @@ namespace SS_OpenCV
             first_digit = first_digit_codification[first_6_digits_type];
 
             bar_code_number = first_digit + first_6_digits + second_6_digits;
-         
+
             Console.WriteLine(bar_code_number);
-   
+
         }
-
-
     }
+
 }
 
         

@@ -509,14 +509,68 @@ namespace SS_OpenCV
 
         private void testeToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
             if (img == null) // verify if the image is already opened
                 return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
 
             //copy Undo Image
             imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
 
-            
+            //ImageClass.Momentum(img);
 
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+
+
+
+        }
+
+        private void dilatationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Dilatation(img, imgCopy);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void convertBWToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.ConvertToBW_Otsu(img);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
         }
 
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)

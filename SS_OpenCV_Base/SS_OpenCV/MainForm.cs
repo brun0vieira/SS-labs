@@ -520,14 +520,12 @@ namespace SS_OpenCV
             //copy Image
             imgCopy = img.Copy();
 
-            //ImageClass.Momentum(img);
+            ImageClass.FindAngle(img);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
 
             Cursor = Cursors.Default; // normal cursor 
-
-
 
         }
 

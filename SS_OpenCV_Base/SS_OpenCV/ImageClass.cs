@@ -1832,7 +1832,7 @@ namespace SS_OpenCV
             bc_size1.Height),
             new Bgr(0, 255, 0), 3);
 
-            ProjectionsToBits(vertical_projections);
+            ProjectionsToBits(vertical_projections,horizontal_projections);
 
             return img;
 
@@ -1924,7 +1924,10 @@ namespace SS_OpenCV
 
         }
 
-        public static void ProjectionsToBits(int[] vertical_projections)
+        // returns list
+        // returnList[0] - first_6_digits_projections used to decode barcode
+        // returnList[1] - second_6_digits_projections used to decode barcode
+        public static List<int[]> ProjectionsToBits(int[] vertical_projections, int[] horizontal_projections)
         {
 
             int initial_position_1, final_position_1, initial_position_2, final_position_2;
@@ -1934,6 +1937,7 @@ namespace SS_OpenCV
             int[] first_6_digits_projections;
             int[] second_6_digits_projections;
             int i, j;
+            var returnList = new List<int[]>();
 
             // ir até à primeira barra (percorrer o vertical segmentation e ir ignorando até encontrar um valor alto - nao basta ser zero pois temos um digito antes da 1ª barra) 
             // como definir este nr? *** por enquanto 50 ***
@@ -1952,13 +1956,14 @@ namespace SS_OpenCV
                 i++;
             }
 
-            // para irmos para a primeira posicao dos 6 primeiros digitos temos que passar a 2ª barra inicial 
+            // para irmos para a primeira posicao dos 6 primeiros digitos temos que passar a 2ª barra inicial
             i += 2 * pixels_per_bit;
 
             first_6_digits_projections = new int[digits * bits * pixels_per_bit];
             second_6_digits_projections = new int[digits * bits * pixels_per_bit];
 
             initial_position_1 = i;
+            Console.WriteLine("aqui");
 
             // estamos na primeira posicao dos 6 primeiros digitos
             // a última posição dos 6 primeiros digitos é: posicao_atual + 6(digitos)*7(bits)*2(pixeis_por_bit) - 1
@@ -2011,9 +2016,63 @@ namespace SS_OpenCV
                     second_6_digits_bits[j] = 1;
                 }
             }
+            Console.WriteLine("aqui");
 
-            DecodeDigits(first_6_digits_bits, second_6_digits_bits);
+            returnList.Add(first_6_digits_bits);
+            returnList.Add(second_6_digits_bits);
+            Console.WriteLine("aqui");
 
+            return returnList;
+
+        }
+
+        // returns barcode_dimensions (int[])
+        // barcode_dimensions[0] - barcode_width
+        // barcode_dimensions[1] - barcode_height
+        public static int[] BarcodeDimensions(int[] vertical_projections, int[] horizontal_projections)
+        {
+            unsafe
+            {
+                int barcode_width = 0, barcode_height = 0;
+                int[] barcode_dimensions;
+                int i;
+                
+                for(i=0; i<vertical_projections.Length; i++)
+                {
+                    if(vertical_projections[i]!=0)
+                    {
+                        barcode_width -= i; // i - initial position of the barcode
+                        break; 
+                    }
+                }
+
+                for(i=vertical_projections.Length-1; i>=0; i--)
+                {
+                    if(vertical_projections[i]!=0)
+                    {
+                        barcode_width += i; // i - final position of the barcode
+                        break;
+                    }
+                }
+
+                for(i=0; i<horizontal_projections.Length; i++)
+                {
+                    if(horizontal_projections[i]!=0)
+                    {
+                        barcode_height -= i;
+                        break;
+                    }
+                }
+
+                while(horizontal_projections[i]!=0)
+                {
+                    i++;
+                }
+
+                barcode_height += i;
+                barcode_dimensions = new int[] { barcode_width, barcode_height };
+                return barcode_dimensions;
+            }
         }
 
         class DigitType
@@ -2124,20 +2183,12 @@ namespace SS_OpenCV
         }
 
         // receives the projections and angle and locates the barcode
-        public static void LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle)
+        public static void LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int barcode_width, int barcode_height)
         {
             unsafe
             {
-                MIplImage m = img.MIplImage;
-                byte* dataPtr = (byte*)m.imageData.ToPointer();
 
-                int width = img.Width;
-                int height = img.Height;
-                int nC = m.nChannels;
-                int widthstep = m.widthStep;
-                int heightstep = widthstep * height;
-                int padding = m.widthStep - m.nChannels * m.width;
-                int x, y, i;
+                int i;
                 double cx=0, cy=0, area=0;
 
                 for(i=0; i<vertical_projections.Length; i++)
@@ -2153,9 +2204,15 @@ namespace SS_OpenCV
                 cx = cx / area;
                 cy = cy / area;
 
-                Console.WriteLine(angle);
-                
-                MCvBox2D mybox = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size(200, 90),(float)(angle*(-180/Math.PI)));
+                // se a imagem rodou, é necessário aumentar o barcode_width 1.2x e barcode_height 1.1x (tentativa e erro foram os valores que melhor se ajustaram)
+                if(angle!=0)
+                {
+                    cx += cx * 0.05;
+                    barcode_width = (int)(barcode_width * 1.2);
+                    barcode_height = (int)(barcode_height * 1.1);
+                }
+
+                MCvBox2D mybox = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size((int)(barcode_width), (int)(barcode_height)),(float)(angle*(-180/Math.PI)));
                 img.Draw(mybox, new Bgr(0, 0, 255), 2);
             }
         }
@@ -2196,6 +2253,7 @@ namespace SS_OpenCV
         }
 
         // returns angle in radians
+        // to-do: need to handle angles greater than 45 degrees
         public static double EixoMomento(Image<Bgr, byte> img)
         {
             unsafe
@@ -2250,6 +2308,10 @@ namespace SS_OpenCV
                     angle = -(90 + (angle));
                 else
                     angle = 90 - (angle);
+
+                // um angulo perto de zero arredonda-se para zero
+                if (angle > -1 && angle < 1)
+                    angle = 0;
 
                 angle *= Math.PI / 180;
                 angle *= -1;

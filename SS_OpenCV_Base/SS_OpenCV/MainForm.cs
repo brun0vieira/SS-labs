@@ -520,7 +520,6 @@ namespace SS_OpenCV
             //copy Image
             imgCopy = img.Copy();
 
-
             int[][] projections;
             int[] vertical_projections, horizontal_projections;
 
@@ -529,11 +528,20 @@ namespace SS_OpenCV
             horizontal_projections = projections[1];
 
             var angle = ImageClass.EixoMomento(img);
-            ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
 
-            ImageClass.LocateBarcode(img, vertical_projections, horizontal_projections, angle);
+            if(angle != 0)
+            {
+                ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+            }
 
-            ImageViewer.Image = img.Bitmap;
+            projections = ImageClass.Segmentation(img);
+            vertical_projections = projections[0];
+            horizontal_projections = projections[1];
+            var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
+
+            ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions[0], barcode_dimensions[1]);
+
+            ImageViewer.Image = imgCopy.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
 
             Cursor = Cursors.Default; // normal cursor 

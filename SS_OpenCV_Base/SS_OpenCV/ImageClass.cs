@@ -1603,6 +1603,66 @@ namespace SS_OpenCV
             }
         }
 
+        public static void Rotation_Bilinear(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float angle)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer(); // Pointer to the image
+                MIplImage mCopy = imgCopy.MIplImage;
+                byte* dataPtrAux = (byte*)mCopy.imageData.ToPointer(); // Pointer to the image
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels; // number of channels - 3
+                int padding = m.widthStep - m.nChannels * m.width; // alinhament bytes (padding)
+                int x, y, i;
+                float xaux1, xaux2, final;
+                float j, k; //fatores(offsets) para a interpolação ==> tem que se dar valores?
+                double xf, yf;
+                int xfaux, yfaux;
+
+                if (nC == 3) // image in RGB
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            xf = (((x - (width / 2.0)) * Math.Cos(angle)) - (((height / 2.0) - y) * Math.Sin(angle)) + width / 2.0);
+                            yf = ((height / 2.0) - ((x - (width / 2.0)) * Math.Sin(angle)) - (((height / 2.0) - y) * Math.Cos(angle)));
+
+                            j = (float)xf % 1;
+                            k = (float)yf % 1;
+
+                            xfaux = (int)(xf / 1);
+                            yfaux = (int)(yf / 1);
+
+                            if (xf < 0 || yf < 0 || xf >= width -1 || yf >= height -1)
+                            {
+                                (dataPtr + y * m.widthStep + x * nC)[0] = 255;
+                                (dataPtr + y * m.widthStep + x * nC)[1] = 255;
+                                (dataPtr + y * m.widthStep + x * nC)[2] = 255;
+                            }
+                            else
+                            {
+                                for (i = 0; i < 3; i++)
+                                {
+                                    xaux1 = ((1 - j) * (dataPtrAux + (yfaux) * m.widthStep + xfaux * nC)[i] + j * (dataPtrAux + yfaux * m.widthStep + (xfaux + 1) * nC)[i]);
+                                    xaux2 = ((1 - j) * (dataPtrAux + (yfaux + 1) * m.widthStep + xfaux * nC)[i] + j * (dataPtrAux + (yfaux + 1) * m.widthStep + (xfaux + 1) * nC)[i]);
+                                    final = (int)Math.Round((1 - k) * xaux1 + k * xaux2);
+                                    (dataPtr + y * m.widthStep + x * nC)[i] = (byte)final;
+                                }
+                            }
+
+
+
+
+                        }
+                    }
+                }
+
+            }
+        }
 
         // Morphological operation: Dilatation
         // Structure object (5x5 kernel) :
@@ -1638,19 +1698,25 @@ namespace SS_OpenCV
 
                         for (x = 2; x < (width - 2); x++)
                         {
-
+                            // mascara 5x5
                             if ((dataPtr_dest - nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * widthstep)[0] != 0 || (dataPtr_dest + nC - 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - 2 * widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC - widthstep)[0] != 0 || (dataPtr_dest - widthstep)[0] != 0 || (dataPtr_dest + nC - widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC)[0] != 0 || dataPtr_dest[0] != 0 || (dataPtr_dest + nC)[0] != 0 || (dataPtr_dest + 2 * nC)[0] != 0 || (dataPtr_dest - 2 * nC)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC + widthstep)[0] != 0 || (dataPtr_dest + widthstep)[0] != 0 || (dataPtr_dest + nC + widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * widthstep)[0] != 0 || (dataPtr_dest + nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + 2 * widthstep)[0] != 0
                                 )
+                            /* mascara em cruz 5x5
+                            if ( (dataPtr_dest - 2 * widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC - widthstep)[0] != 0 || (dataPtr_dest - widthstep)[0] != 0 || (dataPtr_dest + nC - widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC)[0] != 0 || dataPtr_dest[0] != 0 || (dataPtr_dest + nC)[0] != 0 || (dataPtr_dest + 2 * nC)[0] != 0 || (dataPtr_dest - 2 * nC)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC + widthstep)[0] != 0 || (dataPtr_dest + widthstep)[0] != 0 || (dataPtr_dest + nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest + 2 * widthstep)[0] != 0 
+                                )*/
                             {
                                 dataPtr[0] = (byte)(255);
                                 dataPtr[1] = (byte)(255);
                                 dataPtr[2] = (byte)(255);
                             }
-
 
                             dataPtr_dest += nC;
                             dataPtr += nC;
@@ -1665,7 +1731,62 @@ namespace SS_OpenCV
 
         public static void Erosion(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
         {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
 
+                MIplImage m_dest = imgCopy.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+
+                int x, y;
+
+                dataPtr += 2 * widthstep + 2 * nC;
+                dataPtr_dest += 2 * widthstep + 2 * nC;
+
+                if (nC == 3)
+                {
+                    for (y = 2; y < (height - 2); y++) // all but margins
+                    {
+
+                        for (x = 2; x < (width - 2); x++)
+                        {
+                            // mascara 5x5
+                            if ((dataPtr_dest - nC - 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * widthstep)[0] == 0 || (dataPtr_dest + nC - 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * nC - 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * nC - 2 * widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC - widthstep)[0] == 0 || (dataPtr_dest - widthstep)[0] == 0 || (dataPtr_dest + nC - widthstep)[0] == 0 || (dataPtr_dest + 2 * nC - widthstep)[0] == 0 || (dataPtr_dest - 2 * nC - widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC)[0] == 0 || dataPtr_dest[0] == 0 || (dataPtr_dest + nC)[0] == 0 || (dataPtr_dest + 2 * nC)[0] == 0 || (dataPtr_dest - 2 * nC)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC + widthstep)[0] == 0 || (dataPtr_dest + widthstep)[0] == 0 || (dataPtr_dest + nC + widthstep)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC + 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * widthstep)[0] == 0 || (dataPtr_dest + nC + 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * nC + 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + 2 * widthstep)[0] == 0
+                                )
+                            /* mascara 5x5 (em cruz)
+                            if ((dataPtr_dest - 2 * widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC - widthstep)[0] == 0 || (dataPtr_dest - widthstep)[0] == 0 || (dataPtr_dest + nC - widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC)[0] == 0 || dataPtr_dest[0] == 0 || (dataPtr_dest + nC)[0] == 0 || (dataPtr_dest + 2 * nC)[0] == 0 || (dataPtr_dest - 2 * nC)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC + widthstep)[0] == 0 || (dataPtr_dest + widthstep)[0] == 0 || (dataPtr_dest + nC + widthstep)[0] == 0 ||
+                               (dataPtr_dest + 2 * widthstep)[0] == 0
+                               )*/
+                            {
+                                dataPtr[0] = (byte)(0);
+                                dataPtr[1] = (byte)(0);
+                                dataPtr[2] = (byte)(0);
+                            }
+
+
+                            dataPtr_dest += nC;
+                            dataPtr += nC;
+
+                        }
+                        dataPtr_dest += padding + 4 * nC; // nC to gett out of the margin
+                        dataPtr += padding + 4 * nC;
+                    }
+                }
+            }
         }
 
 
@@ -1712,7 +1833,6 @@ namespace SS_OpenCV
             new Bgr(0, 255, 0), 3);
 
             ProjectionsToBits(vertical_projections);
-
 
             return img;
 
@@ -1780,7 +1900,6 @@ namespace SS_OpenCV
                 int x, y, i, num_x = 0, num_y = 0, den_x = 0, den_y = 0;
                 float c_x, c_y;
                 float[] centroid = new float[2];
-
 
                 for (i = 0; i < vertical_projections.Length; i++)
                 {
@@ -2004,16 +2123,51 @@ namespace SS_OpenCV
 
         }
 
-        // returns the angle of the rectangle correspondent to the barcode (in degrees)
-        public static double FindAngle(Image<Bgr, byte> img)
+        // receives the projections and angle and locates the barcode
+        public static void LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int heightstep = widthstep * height;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y, i;
+                double cx=0, cy=0, area=0;
+
+                for(i=0; i<vertical_projections.Length; i++)
+                {
+                    cx += (i+1) * vertical_projections[i];
+                    area += vertical_projections[i];
+                }
+                for(i=0; i<horizontal_projections.Length; i++)
+                {
+                    cy += (i+1) * horizontal_projections[i];
+                }
+
+                cx = cx / area;
+                cy = cy / area;
+
+                Console.WriteLine(angle);
+                
+                MCvBox2D mybox = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size(200, 90),(float)(angle*(-180/Math.PI)));
+                img.Draw(mybox, new Bgr(0, 0, 255), 2);
+            }
+        }
+
+        // to delete if not used
+        public static double FindAngle(Image<Bgr, byte> img, List<Point> listCorners)
         {
             unsafe
             {
                 
                 Point corner1, corner2, corner3, corner4, point1, point2, auxPoint, centroid;
                 double angleRad, angleDeg;
-
-                var listCorners = FindCorners(img);
 
                 corner1 = listCorners[0];
                 corner2 = listCorners[1];
@@ -2037,8 +2191,73 @@ namespace SS_OpenCV
                 Console.WriteLine("Centroid: " + centroid);
                 Console.WriteLine("Angle   : " + angleDeg);
 
-                return angleDeg;
+                return angleRad;
             }
+        }
+
+        // returns angle in radians
+        public static double EixoMomento(Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int heightstep = widthstep * height;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                double sx=0, sy=0, sxx=0, syy=0, sxy=0, mxx=0, myy=0, mxy=0, angle;
+                int area=0;
+                int[] proj = new int[width];
+
+                for (y = 0; y < height; y++)
+                {
+                    for (x = 0; x < width; x++)
+                    {
+                        if (dataPtr[0] == 0)
+                        {
+                            proj[x]++;
+                            sxy += (x+1) * (y+1);
+                            sx += x+1;
+                            sxx += Math.Pow(x+1, 2);
+                            sy += y+1;
+                            syy += Math.Pow(y+1, 2);
+
+                        }
+                        dataPtr += nC;
+                    }
+                    dataPtr += padding;
+                }
+
+                for (x = 0; x < proj.Length; x++)
+                    area += proj[x];
+
+                mxx = sxx - (Math.Pow(sx, 2) / area);
+                myy = syy - (Math.Pow(sy, 2) / area);
+                mxy = sxy - ((sx * sy) / area);
+
+                y = (int)(mxx - myy + Math.Sqrt(Math.Pow((mxx - myy), 2)) + 4 * Math.Pow(mxy, 2) / (2 * mxy));
+                angle = Math.Atan((mxx - myy + Math.Sqrt((mxx - myy) * (mxx - myy) + 4 * mxy * mxy)) / (2 * mxy));
+
+                angle = (angle * 180.0) / Math.PI;
+
+                if (angle < 0)
+                    angle = -(90 + (angle));
+                else
+                    angle = 90 - (angle);
+
+                angle *= Math.PI / 180;
+                angle *= -1;
+
+                return angle;
+
+            }
+
         }
 
         // returns corners and some points from the rectangle correspondent to the barcode
@@ -2046,6 +2265,7 @@ namespace SS_OpenCV
         // listCorners[4] - point1
         // listCorners[5] - point2
         // listCorners[6] - centroid
+
         public static List<Point> FindCorners(Image<Bgr, byte> img)
         {
             unsafe
@@ -2222,6 +2442,8 @@ namespace SS_OpenCV
 
             } 
         } 
+
+
 
     } 
 

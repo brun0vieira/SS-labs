@@ -520,7 +520,18 @@ namespace SS_OpenCV
             //copy Image
             imgCopy = img.Copy();
 
-            ImageClass.FindAngle(img);
+
+            int[][] projections;
+            int[] vertical_projections, horizontal_projections;
+
+            projections = ImageClass.Segmentation(img);
+            vertical_projections = projections[0];
+            horizontal_projections = projections[1];
+
+            var angle = ImageClass.EixoMomento(img);
+            ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+
+            ImageClass.LocateBarcode(img, vertical_projections, horizontal_projections, angle);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen
@@ -564,6 +575,27 @@ namespace SS_OpenCV
             imgCopy = img.Copy();
 
             ImageClass.ConvertToBW_Otsu(img);
+
+            ImageViewer.Image = img.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void erosionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            ImageClass.Erosion(img, imgCopy);
 
             ImageViewer.Image = img.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen

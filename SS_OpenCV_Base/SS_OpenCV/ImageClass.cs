@@ -1943,12 +1943,12 @@ namespace SS_OpenCV
             // como definir este nr? *** por enquanto 50 ***
 
             // estamos na primeira barra. verificar quantos pixeis tem a primeira barra que vale 1 bit.
-
             i = 0;
             while (vertical_projections[i] < 50)
             {
                 i++;
             }
+            
 
             while (vertical_projections[i] > 50)
             {
@@ -1963,7 +1963,6 @@ namespace SS_OpenCV
             second_6_digits_projections = new int[digits * bits * pixels_per_bit];
 
             initial_position_1 = i;
-            Console.WriteLine("aqui");
 
             // estamos na primeira posicao dos 6 primeiros digitos
             // a última posição dos 6 primeiros digitos é: posicao_atual + 6(digitos)*7(bits)*2(pixeis_por_bit) - 1
@@ -2016,14 +2015,116 @@ namespace SS_OpenCV
                     second_6_digits_bits[j] = 1;
                 }
             }
-            Console.WriteLine("aqui");
 
             returnList.Add(first_6_digits_bits);
             returnList.Add(second_6_digits_bits);
-            Console.WriteLine("aqui");
 
             return returnList;
 
+        }
+
+        public static List<int[]> ProjectionsToBits2(Image<Bgr, byte> img,Point centroid)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y, pixels_per_bit = 0, i=0, j;
+                int digits = 6;
+                int bits = 7;
+                int initial_position_1, final_position_1, initial_position_2, final_position_2;
+                var returnList = new List<int[]>();
+
+                dataPtr += widthstep * centroid.Y;
+
+                // dataPtr está a apontar para o pixel (0,centroid.Y)
+                // percorremos agora até ao fim para depois descodificarmos o codigo de barras
+                ConvertToBW_Otsu(img);
+
+                while (dataPtr[0]!=0)
+                {
+                    i++;
+                    dataPtr += nC;
+                }
+                while (dataPtr[0]==0)
+                {
+                    i++;
+                    pixels_per_bit++;
+                    dataPtr += nC;
+                }
+
+                pixels_per_bit = 2;
+
+                Console.WriteLine(pixels_per_bit);
+
+                dataPtr += nC * 2 * pixels_per_bit;
+                i += 2 * pixels_per_bit;
+                
+                int[] first_6_digits_projections = new int[digits * bits * pixels_per_bit];
+                int[] second_6_digits_projections = new int[digits * bits * pixels_per_bit];
+
+                initial_position_1 = i;
+
+                final_position_1 = initial_position_1 + digits * bits * pixels_per_bit - 1;
+
+                for(j=0; i<= final_position_1; i++, j++)
+                {
+                    first_6_digits_projections[j] = dataPtr[0];
+                    dataPtr += nC;
+                }
+
+                i += 5 * pixels_per_bit;
+                dataPtr += nC * 5 * pixels_per_bit;
+                initial_position_2 = i;
+
+                final_position_2 = initial_position_2 + digits * bits * pixels_per_bit - 1;
+
+                for(j=0; i<= final_position_2; i++,j++)
+                {
+                    second_6_digits_projections[j] = dataPtr[0];
+                    dataPtr += nC;
+                }
+
+                int[] first_6_digits_bits = new int[digits * bits];
+
+                for (i = 0, j = 0; i < first_6_digits_projections.Length; i += pixels_per_bit, j++)
+                {
+
+                    if (first_6_digits_projections[i]==255)
+                    {
+                        first_6_digits_bits[j] = 0;
+                    }
+                    else
+                    {
+                        first_6_digits_bits[j] = 1;
+                    }
+                }
+
+                int[] second_6_digits_bits = new int[digits * bits];
+                for (i = 0, j = 0; i < second_6_digits_projections.Length; i += pixels_per_bit, j++)
+                {
+                    if (second_6_digits_projections[i]==255)
+                    {
+                        second_6_digits_bits[j] = 0;
+                    }
+                    else
+                    {
+                        second_6_digits_bits[j] = 1;
+                    }
+                }
+
+                returnList.Add(first_6_digits_bits);
+                returnList.Add(second_6_digits_bits);
+
+                return returnList;
+
+            }
         }
 
         // returns barcode_dimensions (int[])
@@ -2148,6 +2249,8 @@ namespace SS_OpenCV
             first_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
             first_6_digits_type = digits_codification[bits.Substring(0, 7)].Type;
 
+            
+
             for (i = 7; i != 42; i += 7)
             {
                 digit = digits_codification[bits.Substring(i, 7)].Digit;
@@ -2183,13 +2286,15 @@ namespace SS_OpenCV
         }
 
         // receives the projections and angle and locates the barcode
-        public static void LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int barcode_width, int barcode_height)
+        // returns the centroid of the barcode
+        public static Point LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int barcode_width, int barcode_height)
         {
             unsafe
             {
 
                 int i;
                 double cx=0, cy=0, area=0;
+                Point centroid;
 
                 for(i=0; i<vertical_projections.Length; i++)
                 {
@@ -2204,6 +2309,8 @@ namespace SS_OpenCV
                 cx = cx / area;
                 cy = cy / area;
 
+                centroid = new Point((int)cx,(int)cy);
+
                 // se a imagem rodou, é necessário aumentar o barcode_width 1.2x e barcode_height 1.1x (tentativa e erro foram os valores que melhor se ajustaram)
                 if(angle!=0)
                 {
@@ -2211,9 +2318,17 @@ namespace SS_OpenCV
                     barcode_width = (int)(barcode_width * 1.2);
                     barcode_height = (int)(barcode_height * 1.1);
                 }
+                else
+                {
+                    cy -= cy * 0.05;
+                    barcode_height = (int)(barcode_height / 1.1);
+                }
+                
 
                 MCvBox2D mybox = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size((int)(barcode_width), (int)(barcode_height)),(float)(angle*(-180/Math.PI)));
                 img.Draw(mybox, new Bgr(0, 0, 255), 2);
+
+                return centroid;
             }
         }
 

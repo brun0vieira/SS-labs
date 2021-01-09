@@ -507,7 +507,7 @@ namespace SS_OpenCV
             */
         }
 
-        private void testeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void testeToolStripMenuItem_Click(object sender, EventArgs e) 
         {
             Image<Bgr, Byte> imgCopy = null; // copy Image
 
@@ -522,6 +522,8 @@ namespace SS_OpenCV
 
             int[][] projections;
             int[] vertical_projections, horizontal_projections;
+            bool rotation_done=false;
+            Point centroid;
 
             projections = ImageClass.Segmentation(img);
             vertical_projections = projections[0];
@@ -532,6 +534,7 @@ namespace SS_OpenCV
             if(angle != 0)
             {
                 ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+                rotation_done = true;
             }
 
             projections = ImageClass.Segmentation(img);
@@ -539,7 +542,24 @@ namespace SS_OpenCV
             horizontal_projections = projections[1];
             var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
 
-            ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions[0], barcode_dimensions[1]);
+            centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions[0], barcode_dimensions[1]);
+
+            if(rotation_done == false) 
+            {
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+
+                var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
+
+                ImageClass.DecodeDigits(returnList[0], returnList[1]);
+
+            }
+            else
+            {
+                var returnList = ImageClass.ProjectionsToBits2(img, centroid);
+                ImageClass.DecodeDigits(returnList[0], returnList[1]);
+            }
 
             ImageViewer.Image = imgCopy.Bitmap;
             ImageViewer.Refresh(); // refresh image on the screen

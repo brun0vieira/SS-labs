@@ -164,7 +164,6 @@ namespace SS_OpenCV
 
             Cursor = Cursors.Default; // normal cursor 
         }
-
         private void redChannelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (img == null) // verify if the image is already opened
@@ -507,66 +506,7 @@ namespace SS_OpenCV
             */
         }
 
-        private void testeToolStripMenuItem_Click(object sender, EventArgs e) 
-        {
-            Image<Bgr, Byte> imgCopy = null; // copy Image
-
-            if (img == null) // verify if the image is already opened
-                return;
-            Cursor = Cursors.WaitCursor; // clock cursor 
-
-            //copy Undo Image
-            imgUndo = img.Copy();
-            //copy Image
-            imgCopy = img.Copy();
-
-            int[][] projections;
-            int[] vertical_projections, horizontal_projections;
-            bool rotation_done=false;
-            Point centroid;
-
-            projections = ImageClass.Segmentation(img);
-            vertical_projections = projections[0];
-            horizontal_projections = projections[1];
-
-            var angle = ImageClass.EixoMomento(img);
-
-            if(angle != 0)
-            {
-                ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
-                rotation_done = true;
-            }
-
-            projections = ImageClass.Segmentation(img);
-            vertical_projections = projections[0];
-            horizontal_projections = projections[1];
-            var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
-
-            centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions[0], barcode_dimensions[1]);
-
-            if(rotation_done == false) 
-            {
-                projections = ImageClass.Segmentation(img);
-                vertical_projections = projections[0];
-                horizontal_projections = projections[1];
-
-                var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
-
-                ImageClass.DecodeDigits(returnList[0], returnList[1]);
-
-            }
-            else
-            {
-                var returnList = ImageClass.ProjectionsToBits2(img, centroid);
-                ImageClass.DecodeDigits(returnList[0], returnList[1]);
-            }
-
-            ImageViewer.Image = imgCopy.Bitmap;
-            ImageViewer.Refresh(); // refresh image on the screen
-
-            Cursor = Cursors.Default; // normal cursor 
-
-        }
+        
 
         private void dilatationToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -629,6 +569,95 @@ namespace SS_OpenCV
             ImageViewer.Refresh(); // refresh image on the screen
 
             Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void readBarcodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Image<Bgr, Byte> imgCopy = null; // copy Image
+
+            if (img == null) // verify if the image is already opened
+                return;
+            Cursor = Cursors.WaitCursor; // clock cursor 
+
+            //copy Undo Image
+            imgUndo = img.Copy();
+            //copy Image
+            imgCopy = img.Copy();
+
+            int[][] projections;
+            int[] vertical_projections, horizontal_projections;
+            bool rotation_done = false;
+            Point centroid;
+            string barcode_barras = "", barcode_digitos = "";
+
+            try
+            {
+
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+
+                var angle = ImageClass.EixoMomento(img);
+
+                if (angle != 0)
+                {
+                    ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+                    rotation_done = true;
+                }
+
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+                var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
+
+                centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions);
+
+                if (rotation_done == false)
+                {
+                    projections = ImageClass.Segmentation(img);
+                    vertical_projections = projections[0];
+                    horizontal_projections = projections[1];
+
+                    var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+
+                }
+                else
+                {
+                    var returnList = ImageClass.ConvertToBits(img, centroid);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+                }
+
+                try
+                {
+                    barcode_digitos = ImageClass.ReadDigits(img, centroid, barcode_dimensions, horizontal_projections, angle);
+
+                    if (barcode_digitos.Equals(barcode_barras))
+                        Console.WriteLine("Os CB coincidem.");
+                    else
+                        Console.WriteLine("Os CB não coincidem.");
+                }
+                catch
+                {
+                    Console.WriteLine("Erro ao ler os digitos.");
+                }
+
+            }
+
+            catch
+            {
+                Console.WriteLine("Erro ao processar a imagem.");
+            }
+
+            ImageViewer.Image = imgCopy.Bitmap;
+            ImageViewer.Refresh(); // refresh image on the screen
+
+            Cursor = Cursors.Default; // normal cursor 
+        }
+
+        private void testeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void zoomToolStripMenuItem_Click(object sender, EventArgs e)

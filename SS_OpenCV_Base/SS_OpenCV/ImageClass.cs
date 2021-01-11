@@ -1806,35 +1806,92 @@ namespace SS_OpenCV
         /// <returns>image with barcodes detected</returns>
         public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
         {
-            int[][] projections;
-            int[] vertical_projections, horizontal_projections;
-
-            projections = Segmentation(img);
-            vertical_projections = projections[0];
-            horizontal_projections = projections[1];
-
             // first barcode
-            bc_image1 = "5601212323434";
-            bc_number1 = "9780201379624";
-            bc_centroid1 = new Point(130, 60);
-            //bc_centroid1 = new Point((int)centroid[0], (int)centroid[1]);
-            bc_size1 = new Size(200, 80);
+            bc_image1 = null;
+            bc_number1 = null;
+            bc_centroid1 = Point.Empty;
+            bc_size1 = Size.Empty;
 
             //second barcode
             bc_image2 = null;
             bc_number2 = null;
             bc_centroid2 = Point.Empty;
             bc_size2 = Size.Empty;
-            // draw the rectangle over the destination image
-            img.Draw(new Rectangle(bc_centroid1.X - bc_size1.Width / 2,
-            bc_centroid1.Y - bc_size1.Height / 2,
-            bc_size1.Width,
-            bc_size1.Height),
-            new Bgr(0, 255, 0), 3);
 
-            ProjectionsToBits(vertical_projections,horizontal_projections);
+            int[][] projections;
+            int[] vertical_projections, horizontal_projections;
+            bool rotation_done = false;
+            Point centroid;
+            string barcode_barras = "", barcode_digitos = "";
+            Image<Bgr, Byte> imgCopy = null;
 
-            return img;
+            imgCopy = img.Copy();
+
+            try
+            {
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+
+                var angle = ImageClass.EixoMomento(img);
+
+                if (angle != 0)
+                {
+                    ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+                    rotation_done = true;
+                }
+
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+                var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
+                
+                // barcode_dimensions[0] - barcode width
+                // barcode_dimensions[1] - barcode height
+                bc_size1 = new Size(barcode_dimensions[1], barcode_dimensions[0]);
+
+                centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions);
+                bc_centroid1 = centroid;
+
+                if (rotation_done == false)
+                {
+                    projections = ImageClass.Segmentation(img);
+                    vertical_projections = projections[0];
+                    horizontal_projections = projections[1];
+
+                    var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+
+                }
+                else
+                {
+                    var returnList = ImageClass.ConvertToBits(img, centroid);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+                }
+
+                bc_image1 = barcode_barras;
+
+                try
+                {
+                    barcode_digitos = ImageClass.ReadDigits(img, centroid, barcode_dimensions, horizontal_projections, angle);
+                    bc_number1 = barcode_digitos;
+
+                    if (barcode_digitos.Equals(barcode_barras))
+                        Console.WriteLine("Os CB coincidem.");
+                    else
+                        Console.WriteLine("Os CB não coincidem.");
+                }
+                catch
+                {
+                    Console.WriteLine("Erro ao ler os digitos.");
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Erro ao processar a imagem.");
+            }
+
+            return imgCopy;
 
         }
 
@@ -2023,7 +2080,7 @@ namespace SS_OpenCV
 
         }
 
-        public static List<int[]> ProjectionsToBits2(Image<Bgr, byte> img,Point centroid)
+        public static List<int[]> ConvertToBits(Image<Bgr, byte> img,Point centroid)
         {
             unsafe
             {
@@ -2060,8 +2117,6 @@ namespace SS_OpenCV
                 }
 
                 pixels_per_bit = 2;
-
-                Console.WriteLine(pixels_per_bit);
 
                 dataPtr += nC * 2 * pixels_per_bit;
                 i += 2 * pixels_per_bit;
@@ -2182,7 +2237,7 @@ namespace SS_OpenCV
             public string Type { get; set; }
         }
 
-        public static void DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
+        public static string DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
         {
             // agora que temos todos os bits basta descodificar
             // crie-se um dicionario com toda a codificação de CB
@@ -2281,13 +2336,14 @@ namespace SS_OpenCV
 
             bar_code_number = first_digit + first_6_digits + second_6_digits;
 
-            Console.WriteLine(bar_code_number);
+            Console.WriteLine("Descodificação pelas barras:  " + bar_code_number);
+            return bar_code_number;
 
         }
 
         // receives the projections and angle and locates the barcode
         // returns the centroid of the barcode
-        public static Point LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int barcode_width, int barcode_height)
+        public static Point LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int[] barcode_dimensions)
         {
             unsafe
             {
@@ -2295,8 +2351,9 @@ namespace SS_OpenCV
                 int i;
                 double cx=0, cy=0, area=0;
                 Point centroid;
+                int barcode_width = barcode_dimensions[0], barcode_height = barcode_dimensions[1];
 
-                for(i=0; i<vertical_projections.Length; i++)
+                for (i=0; i<vertical_projections.Length; i++)
                 {
                     cx += (i+1) * vertical_projections[i];
                     area += vertical_projections[i];
@@ -2321,49 +2378,199 @@ namespace SS_OpenCV
                 else
                 {
                     cy -= cy * 0.05;
-                    barcode_height = (int)(barcode_height / 1.1);
+                    barcode_height = (int)(barcode_height / 1.2);
                 }
                 
-
-                MCvBox2D mybox = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size((int)(barcode_width), (int)(barcode_height)),(float)(angle*(-180/Math.PI)));
-                img.Draw(mybox, new Bgr(0, 0, 255), 2);
+                MCvBox2D box_barcode = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size((int)(barcode_width), (int)(barcode_height)),(float)(angle*(-180/Math.PI)));
+                img.Draw(box_barcode, new Bgr(0, 0, 255), 2);
 
                 return centroid;
             }
         }
 
-        // to delete if not used
-        public static double FindAngle(Image<Bgr, byte> img, List<Point> listCorners)
+        public static string ReadDigits(Image<Bgr,byte> img, Point centroid, int[] barcode_dimensions, int[] horizontal_projections, double angle)
         {
             unsafe
             {
+                int i, y_inicial, y_final, x_inicial, x_final, altura_digitos, x, y;
+                bool break_flag = false;
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+                int largura_area_digitos, altura_area_digitos;
+                string barcode;
+
+                for (i = horizontal_projections.Length - 1; i >= 0; i--)
+                {
+                    if (horizontal_projections[i] != 0)
+                    {
+                        break_flag = true;
+                        break;
+                    }
+                    if (break_flag)
+                        break;
+                }
+
+                y_final = i;
+                altura_digitos = (y_final - centroid.Y - barcode_dimensions[1] / 2) * 2;
+                y_inicial = y_final - altura_digitos;
+
+                y_inicial -= altura_digitos / 3; // limite superior
+                y_final += altura_digitos / 3; // limite inferior
+                altura_area_digitos = y_final - y_inicial + 1;
+
+                x_inicial = centroid.X - barcode_dimensions[0]/2 - altura_digitos; // limite esquerda
+                x_final = centroid.X + barcode_dimensions[0]/2 - altura_digitos; // limite direita
+                largura_area_digitos = x_final - x_inicial + 1;
+
+                // Temos os limites da zona dos digitos
+                // Agora temos que segmentar verticalmente esta zona para dividirmos em digitos
+                int[] proj_vertical_digitos = new int[x_final-x_inicial+1];
+
+                dataPtr += widthstep * y_inicial;
+                dataPtr += nC * x_inicial;
+
+                for(y=0; y<altura_area_digitos; y++)
+                {
+                    for(x=0; x<largura_area_digitos; x++)
+                    {
+
+                        if(dataPtr[0] == 0)
+                        {
+                            proj_vertical_digitos[x]++;
+                        }
+                        dataPtr += nC;
+                    }
+                    dataPtr += widthstep;
+                    dataPtr -= largura_area_digitos*nC;
+                }
+
+                int[] posicao_digitos = new int[34]; // a mudar
+                int[] limites_digitos = new int[18];
+                int[] limites = new int[14];
+                int j = 0;
+
+                for (i = 0; j<34; i++) {
+
+                    while (proj_vertical_digitos[i] == 0)
+                    {
+                        i++;
+                        //Console.WriteLine(i);
+                    }
+                    // encontra digito
+                    // i posicao inicial
+                    posicao_digitos[j] = i - 1;
+                    j++;
+
+                    while (proj_vertical_digitos[i] != 0)
+                    {
+                        i++;
+                    } // encontra espaço em branco
+
+                    //posicao_digitos[j] = i;
+                    j++;
+                }
+
+                posicao_digitos[j-1] = i;
+
+                i = 0;
+                foreach(int p in posicao_digitos)
+                {
+                    if(p!=0) // quanto i toma valores 1, 2, 9 e 10 temos que eliminar pois corresponde a uma proj != 0 mas que nao corresponde a um digito
+                    {
+                        limites_digitos[i] = p;
+                        i++;
+                    }
+                }
+
+                // quando i toma valores: 1, 2, 9 e 10 temos que elimir pois corresponde a uma proj != 0 mas que nao corresponde a um digito
+                i = 0;
+                j = 0;
+                foreach(int p in limites_digitos)
+                {
+                    if (i != 1 && i != 2 && i != 9 && i != 10)
+                    {
+                        limites[j] = p + x_inicial; // não esquecer de adicionar o x_inicial (assim ficamos logo com a posicao nas imagens)
+                        j++;
+                    }
+                    i++;
+                }
+
+                List<Image<Bgr, byte>> digitos_segmentados = new List<Image<Bgr, byte>>();
                 
-                Point corner1, corner2, corner3, corner4, point1, point2, auxPoint, centroid;
-                double angleRad, angleDeg;
+                for (i=0; i<limites.Length-1; i++)
+                {
+                    Image<Bgr, byte> segmento = img.Copy(new System.Drawing.Rectangle(limites[i], y_inicial, limites[i+1] - limites[i] + 1, y_final - y_inicial + 1));
+                    digitos_segmentados.Add(segmento);
+                }
+                barcode = CompareDigits(digitos_segmentados);
+                return barcode;
+            }
+        }
 
-                corner1 = listCorners[0];
-                corner2 = listCorners[1];
-                corner3 = listCorners[2];
-                corner4 = listCorners[3];
-                point1 = listCorners[4];
-                point2 = listCorners[5];
-                centroid = listCorners[6];
+        public static string CompareDigits(List<Image<Bgr, byte>> digitos_segmentados)
+        {
+            unsafe
+            {
+                int i,x,y,resto;
+                string digitos_lidos = "";
 
-                auxPoint = new Point(point2.X, centroid.Y);
+                foreach(Image<Bgr,byte> segmento in digitos_segmentados)
+                {
+                    MIplImage d_segmentado = segmento.MIplImage;
+                    int width = d_segmentado.width, height = d_segmentado.height;
+                    int max = 0;
+                    string melhor_digito = "";
 
-                angleRad = Math.Atan2(auxPoint.Y - centroid.Y, auxPoint.X - centroid.X) - Math.Atan2(point2.Y - centroid.Y, point2.X - centroid.X);
-                angleDeg = angleRad* (180 / Math.PI);
+                    for (i=0; i<50; i++)
+                    {
 
-                Console.WriteLine("Corner 1: " + corner1);
-                Console.WriteLine("Corner 2: " + corner2);
-                Console.WriteLine("Corner 3: " + corner3);
-                Console.WriteLine("Corner 4: " + corner4);
-                Console.WriteLine("Point  1: " + point1);
-                Console.WriteLine("Point  2: " + point2);
-                Console.WriteLine("Centroid: " + centroid);
-                Console.WriteLine("Angle   : " + angleDeg);
+                        string path = @"C:\\Users\\bruno\\Desktop\\SS-labs\\SS_OpenCV_Base\\Imagens\\digitos\\" + i.ToString() + ".png";
+                        //string path = @"C:\\Users\\hjoaquim\\Desktop\\SS\\SS_OpenCV_Base\\Imagens\\digitos" + i.ToString() + ".png";
+                        Image<Bgr, byte> digito_guardado = new Image<Bgr, byte>(path);
+                        Image<Bgr, byte> digito_guardado_rs = digito_guardado.Resize(width, height, Emgu.CV.CvEnum.INTER.CV_INTER_CUBIC);
+                        ConvertToBW_Otsu(digito_guardado_rs);
 
-                return angleRad;
+                        MIplImage d_guardado = digito_guardado_rs.MIplImage;
+                        byte* dataPtrDigitoGuardado = (byte*)d_guardado.imageData.ToPointer();
+                        byte* dataPtrDigitoSegmentado = (byte*)d_segmentado.imageData.ToPointer();
+                        int padding = d_guardado.widthStep - d_guardado.nChannels * d_guardado.width;
+                        int nC = d_guardado.nChannels;
+                        int pixeis_iguais = 0;
+
+                        for (y=0; y<height; y++)
+                        {
+                            for(x=0; x<width; x++)
+                            {
+                                if(dataPtrDigitoGuardado[0]==dataPtrDigitoSegmentado[0] && dataPtrDigitoGuardado[1]==dataPtrDigitoSegmentado[1] && dataPtrDigitoGuardado[2] == dataPtrDigitoSegmentado[2])
+                                {
+                                    pixeis_iguais++;
+                                }
+
+                                dataPtrDigitoGuardado += nC;
+                                dataPtrDigitoSegmentado += nC;
+                            }
+                            dataPtrDigitoGuardado += padding;
+                            dataPtrDigitoSegmentado += padding;
+                        }
+
+                        if(pixeis_iguais > max)
+                        {
+                            max = pixeis_iguais;
+                            resto = i % 10;
+                            melhor_digito = resto.ToString();
+                        }
+
+                    }
+                    digitos_lidos += melhor_digito;
+                }
+
+                Console.WriteLine("Descodificação pelos numeros: " + digitos_lidos);
+                return digitos_lidos;
             }
         }
 
@@ -2436,190 +2643,6 @@ namespace SS_OpenCV
             }
 
         }
-
-        // returns corners and some points from the rectangle correspondent to the barcode
-        // listCorners[0..3] - corner1, corner2, corner3, corner4
-        // listCorners[4] - point1
-        // listCorners[5] - point2
-        // listCorners[6] - centroid
-
-        public static List<Point> FindCorners(Image<Bgr, byte> img)
-        {
-            unsafe
-            {
-                MIplImage m = img.MIplImage;
-                byte* dataPtr = (byte*)m.imageData.ToPointer();
-
-                int width = img.Width;
-                int height = img.Height;
-                int nC = m.nChannels;
-                int widthstep = m.widthStep;
-                int heightstep = widthstep * height;
-                int padding = m.widthStep - m.nChannels * m.width;
-                int x, y;
-                Point corner1 = Point.Empty, corner2 = Point.Empty, corner3 = Point.Empty, corner4 = Point.Empty, point1 = Point.Empty, point2 = Point.Empty, auxPoint = Point.Empty, centroid = Point.Empty;
-                bool breakFlag = false;
-                int aux_x, aux_y;
-                var listCorners = new List<Point>();
-
-                // Primeiro obtemos as coordenadas dos 4 cantos do retangulo correspondente ao codigo de barras
-                // canto superior - corner1
-                for (y = 0; y < height; y++)
-                {
-                    for (x = 0; x < width; x++)
-                    {
-
-                        if (dataPtr[0] == 255) // basta verificar uma componente visto que já temos uma imagem binarizada
-                        {
-                            corner1 = new Point(x, y);
-                            breakFlag = true; // flag used for breaking the outer for loop
-                            break;
-                        }
-                        dataPtr += nC;
-                    }
-
-                    if (breakFlag)
-                    {
-                        breakFlag = false;
-                        break;
-
-                    }
-                    dataPtr += padding;
-                }
-
-                dataPtr = (byte*)m.imageData.ToPointer(); // reset the pointer 
-
-                // canto à esquerda - corner2
-                for (x = 0; x < width; x++)
-                {
-                    for (y = 0; y < height; y++)
-                    {
-                        if (dataPtr[0] == 255)
-                        {
-                            corner2 = new Point(x, y);
-                            breakFlag = true;
-                            break;
-                        }
-
-                        dataPtr += widthstep;
-                    }
-
-                    if (breakFlag)
-                    {
-                        breakFlag = false;
-                        break;
-                    }
-
-                    dataPtr -= heightstep;
-                    dataPtr += nC;
-
-                }
-
-                dataPtr = (byte*)m.imageData.ToPointer(); // reset the pointer
-                dataPtr += (widthstep - padding);
-
-                // canto à direita - corner3
-                for (x = width; x > 0; x--)
-                {
-                    for (y = 0; y < height; y++)
-                    {
-                        if (dataPtr[0] == 255)
-                        {
-                            corner3 = new Point(x, y);
-                            breakFlag = true;
-                            break;
-                        }
-
-                        dataPtr += widthstep;
-                    }
-
-                    if (breakFlag)
-                    {
-                        breakFlag = false;
-                        break;
-                    }
-
-                    dataPtr -= heightstep;
-                    dataPtr -= nC;
-                }
-
-                dataPtr = (byte*)m.imageData.ToPointer(); // reset the pointer
-                dataPtr += heightstep;
-                dataPtr += (widthstep - padding);
-
-                // canto inferior - corner4 
-                for (y = height; y > 0; y--)
-                {
-                    for (x = width; x > 0; x--)
-                    {
-                        if (dataPtr[0] == 255)
-                        {
-                            corner4 = new Point(x, y);
-                            breakFlag = true;
-                            break;
-                        }
-
-                        dataPtr -= nC;
-                    }
-
-                    if (breakFlag)
-                    {
-                        breakFlag = false;
-                        break;
-                    }
-
-                    dataPtr -= padding;
-                }
-
-                if (corner1.X > corner4.X)
-                {
-                    aux_x = (corner4.X - corner2.X) / 2;
-                    aux_y = (corner4.Y - corner2.Y) / 2;
-                    point1 = new Point(corner2.X + aux_x, corner2.Y + aux_y);
-
-                    aux_x = (corner3.X - corner1.X) / 2;
-                    aux_y = (corner3.Y - corner1.Y) / 2;
-                    point2 = new Point(corner1.X + aux_x, corner1.Y + aux_y);
-
-                    centroid.X = point1.X + (point2.X - point1.X) / 2;
-                    centroid.Y = point2.Y + (point1.Y - point2.Y) / 2;
-
-                }
-                else
-                {
-                    aux_x = (corner1.X - corner2.X) / 2;
-                    aux_y = (corner2.Y - corner1.Y) / 2;
-                    point1 = new Point(corner2.X + aux_x, corner1.Y + aux_y);
-
-                    aux_x = (corner3.X - corner4.X) / 2;
-                    aux_y = (corner4.Y - corner3.Y) / 2;
-                    point2 = new Point(corner4.X + aux_x, corner3.Y + aux_y);
-
-                    centroid.X = point1.X + (point2.X - point1.X) / 2;
-                    centroid.Y = point1.Y + (point2.Y - point1.Y) / 2;
-
-                }
-
-                listCorners.Add(corner1);
-                listCorners.Add(corner2);
-                listCorners.Add(corner3);
-                listCorners.Add(corner4);
-                listCorners.Add(point1);
-                listCorners.Add(point2);
-                listCorners.Add(centroid);
-
-                return listCorners;
-            }
-        }
-
-        // TO DO
-        public static void LerDigitos(int[] vertical_projections, int[] horizontal_projections)
-        {
-            unsafe {
-
-            } 
-        } 
-
 
 
     } 

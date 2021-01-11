@@ -65,11 +65,12 @@
             this.testeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.morphologicalOpsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dilatationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.erosionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.readBarcodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoresToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.ImageViewer = new System.Windows.Forms.PictureBox();
-            this.erosionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ImageViewer)).BeginInit();
@@ -155,8 +156,9 @@
             this.filtersToolStripMenuItem,
             this.histogramToolStripMenuItem,
             this.autoZoomToolStripMenuItem,
-            this.testeToolStripMenuItem,
-            this.morphologicalOpsToolStripMenuItem});
+            this.readBarcodeToolStripMenuItem,
+            this.morphologicalOpsToolStripMenuItem,
+            this.testeToolStripMenuItem});
             this.imageToolStripMenuItem.Name = "imageToolStripMenuItem";
             this.imageToolStripMenuItem.Size = new System.Drawing.Size(52, 22);
             this.imageToolStripMenuItem.Text = "Image";
@@ -345,7 +347,6 @@
             // 
             this.testeToolStripMenuItem.Name = "testeToolStripMenuItem";
             this.testeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.testeToolStripMenuItem.Text = "Teste";
             this.testeToolStripMenuItem.Click += new System.EventHandler(this.testeToolStripMenuItem_Click);
             // 
             // morphologicalOpsToolStripMenuItem
@@ -363,6 +364,20 @@
             this.dilatationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.dilatationToolStripMenuItem.Text = "Dilatation";
             this.dilatationToolStripMenuItem.Click += new System.EventHandler(this.dilatationToolStripMenuItem_Click);
+            // 
+            // erosionToolStripMenuItem
+            // 
+            this.erosionToolStripMenuItem.Name = "erosionToolStripMenuItem";
+            this.erosionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.erosionToolStripMenuItem.Text = "Erosion";
+            this.erosionToolStripMenuItem.Click += new System.EventHandler(this.erosionToolStripMenuItem_Click);
+            // 
+            // readBarcodeToolStripMenuItem
+            // 
+            this.readBarcodeToolStripMenuItem.Name = "readBarcodeToolStripMenuItem";
+            this.readBarcodeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.readBarcodeToolStripMenuItem.Text = "Read Barcode";
+            this.readBarcodeToolStripMenuItem.Click += new System.EventHandler(this.readBarcodeToolStripMenuItem_Click);
             // 
             // autoresToolStripMenuItem
             // 
@@ -397,13 +412,6 @@
             this.ImageViewer.TabIndex = 6;
             this.ImageViewer.TabStop = false;
             this.ImageViewer.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ImageViewer_MouseClick);
-            // 
-            // erosionToolStripMenuItem
-            // 
-            this.erosionToolStripMenuItem.Name = "erosionToolStripMenuItem";
-            this.erosionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.erosionToolStripMenuItem.Text = "Erosion";
-            this.erosionToolStripMenuItem.Click += new System.EventHandler(this.erosionToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -469,6 +477,7 @@
         private System.Windows.Forms.ToolStripMenuItem dilatationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertBWToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem erosionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem readBarcodeToolStripMenuItem;
     }
 }
 

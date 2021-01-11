@@ -1829,10 +1829,6 @@ namespace SS_OpenCV
 
             try
             {
-                projections = ImageClass.Segmentation(img);
-                vertical_projections = projections[0];
-                horizontal_projections = projections[1];
-
                 var angle = ImageClass.EixoMomento(img);
 
                 if (angle != 0)
@@ -1848,20 +1844,15 @@ namespace SS_OpenCV
                 
                 // barcode_dimensions[0] - barcode width
                 // barcode_dimensions[1] - barcode height
-                bc_size1 = new Size(barcode_dimensions[1], barcode_dimensions[0]);
+                bc_size1 = new Size(barcode_dimensions[0], barcode_dimensions[1]);
 
                 centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions);
                 bc_centroid1 = centroid;
 
                 if (rotation_done == false)
                 {
-                    projections = ImageClass.Segmentation(img);
-                    vertical_projections = projections[0];
-                    horizontal_projections = projections[1];
-
                     var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
                     barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
-
                 }
                 else
                 {
@@ -1938,47 +1929,6 @@ namespace SS_OpenCV
 
                 return projections;
             }
-        }
-
-        // verificar
-        public static float[] CalculateCentroid(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections)
-        {
-            unsafe
-            {
-
-                MIplImage m = img.MIplImage;
-                byte* dataPtr = (byte*)m.imageData.ToPointer();
-
-                int width = img.Width;
-                int height = img.Height;
-                int nC = m.nChannels;
-                int widthstep = m.widthStep;
-                int padding = m.widthStep - m.nChannels * m.width;
-                int x, y, i, num_x = 0, num_y = 0, den_x = 0, den_y = 0;
-                float c_x, c_y;
-                float[] centroid = new float[2];
-
-                for (i = 0; i < vertical_projections.Length; i++)
-                {
-                    num_x += vertical_projections[i] * i;
-                    den_x += vertical_projections[i];
-                }
-
-                for (i = 0; i < horizontal_projections.Length; i++)
-                {
-                    num_y += horizontal_projections[i] * i;
-                    den_y += horizontal_projections[i];
-                }
-
-                c_x = num_x / den_x;
-                c_y = num_y / den_y;
-                centroid[0] = c_x;
-                centroid[1] = c_y;
-
-                return centroid;
-
-            }
-
         }
 
         // returns list

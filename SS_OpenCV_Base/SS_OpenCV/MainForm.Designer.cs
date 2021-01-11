@@ -62,11 +62,10 @@
             this.rGBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.allToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoZoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.testeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.readBarcodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.morphologicalOpsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dilatationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.erosionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.readBarcodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoresToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.evalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -157,8 +156,7 @@
             this.histogramToolStripMenuItem,
             this.autoZoomToolStripMenuItem,
             this.readBarcodeToolStripMenuItem,
-            this.morphologicalOpsToolStripMenuItem,
-            this.testeToolStripMenuItem});
+            this.morphologicalOpsToolStripMenuItem});
             this.imageToolStripMenuItem.Name = "imageToolStripMenuItem";
             this.imageToolStripMenuItem.Size = new System.Drawing.Size(52, 22);
             this.imageToolStripMenuItem.Text = "Image";
@@ -179,42 +177,42 @@
             // negativeToolStripMenuItem
             // 
             this.negativeToolStripMenuItem.Name = "negativeToolStripMenuItem";
-            this.negativeToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.negativeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.negativeToolStripMenuItem.Text = "Negative";
             this.negativeToolStripMenuItem.Click += new System.EventHandler(this.negativeToolStripMenuItem_Click);
             // 
             // grayToolStripMenuItem
             // 
             this.grayToolStripMenuItem.Name = "grayToolStripMenuItem";
-            this.grayToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.grayToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.grayToolStripMenuItem.Text = "Gray";
             this.grayToolStripMenuItem.Click += new System.EventHandler(this.grayToolStripMenuItem_Click);
             // 
             // redChannelToolStripMenuItem
             // 
             this.redChannelToolStripMenuItem.Name = "redChannelToolStripMenuItem";
-            this.redChannelToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.redChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.redChannelToolStripMenuItem.Text = "RedChannel";
             this.redChannelToolStripMenuItem.Click += new System.EventHandler(this.redChannelToolStripMenuItem_Click);
             // 
             // greenChannelToolStripMenuItem
             // 
             this.greenChannelToolStripMenuItem.Name = "greenChannelToolStripMenuItem";
-            this.greenChannelToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.greenChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.greenChannelToolStripMenuItem.Text = "GreenChannel";
             this.greenChannelToolStripMenuItem.Click += new System.EventHandler(this.greenChannelToolStripMenuItem_Click);
             // 
             // blueChannelToolStripMenuItem
             // 
             this.blueChannelToolStripMenuItem.Name = "blueChannelToolStripMenuItem";
-            this.blueChannelToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.blueChannelToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.blueChannelToolStripMenuItem.Text = "BlueChannel";
             this.blueChannelToolStripMenuItem.Click += new System.EventHandler(this.blueChannelToolStripMenuItem_Click);
             // 
             // brightContrastToolStripMenuItem
             // 
             this.brightContrastToolStripMenuItem.Name = "brightContrastToolStripMenuItem";
-            this.brightContrastToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.brightContrastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.brightContrastToolStripMenuItem.Text = "BrightContrast";
             this.brightContrastToolStripMenuItem.Click += new System.EventHandler(this.brightContrastToolStripMenuItem_Click);
             // 
@@ -343,11 +341,12 @@
             this.autoZoomToolStripMenuItem.Text = "Auto Zoom";
             this.autoZoomToolStripMenuItem.Click += new System.EventHandler(this.autoZoomToolStripMenuItem_Click);
             // 
-            // testeToolStripMenuItem
+            // readBarcodeToolStripMenuItem
             // 
-            this.testeToolStripMenuItem.Name = "testeToolStripMenuItem";
-            this.testeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.testeToolStripMenuItem.Click += new System.EventHandler(this.testeToolStripMenuItem_Click);
+            this.readBarcodeToolStripMenuItem.Name = "readBarcodeToolStripMenuItem";
+            this.readBarcodeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.readBarcodeToolStripMenuItem.Text = "Read Barcode";
+            this.readBarcodeToolStripMenuItem.Click += new System.EventHandler(this.readBarcodeToolStripMenuItem_Click);
             // 
             // morphologicalOpsToolStripMenuItem
             // 
@@ -361,23 +360,16 @@
             // dilatationToolStripMenuItem
             // 
             this.dilatationToolStripMenuItem.Name = "dilatationToolStripMenuItem";
-            this.dilatationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.dilatationToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.dilatationToolStripMenuItem.Text = "Dilatation";
             this.dilatationToolStripMenuItem.Click += new System.EventHandler(this.dilatationToolStripMenuItem_Click);
             // 
             // erosionToolStripMenuItem
             // 
             this.erosionToolStripMenuItem.Name = "erosionToolStripMenuItem";
-            this.erosionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.erosionToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.erosionToolStripMenuItem.Text = "Erosion";
             this.erosionToolStripMenuItem.Click += new System.EventHandler(this.erosionToolStripMenuItem_Click);
-            // 
-            // readBarcodeToolStripMenuItem
-            // 
-            this.readBarcodeToolStripMenuItem.Name = "readBarcodeToolStripMenuItem";
-            this.readBarcodeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.readBarcodeToolStripMenuItem.Text = "Read Barcode";
-            this.readBarcodeToolStripMenuItem.Click += new System.EventHandler(this.readBarcodeToolStripMenuItem_Click);
             // 
             // autoresToolStripMenuItem
             // 
@@ -472,7 +464,6 @@
         private System.Windows.Forms.ToolStripMenuItem grayToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem rGBToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem testeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem morphologicalOpsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dilatationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertBWToolStripMenuItem;

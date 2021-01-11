@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,4 +28,4 @@ namespace SS_OpenCV
             chart1.ResumeLayout();
         }
     }
-}*/
+}

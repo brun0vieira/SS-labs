@@ -464,7 +464,7 @@ namespace SS_OpenCV
 
         private void grayToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            /*
+            
             if (img == null) // verify if the image is already opened
                 return;
             Cursor = Cursors.WaitCursor; // clock cursor 
@@ -474,11 +474,11 @@ namespace SS_OpenCV
             Image<Bgr, byte> imgCpy = img.Copy();
 
             Histogram histogram = new Histogram(ImageClass.Histogram_Gray(img));
-            histogram.ShowDialog();*/
+            histogram.ShowDialog();
         }
 
         private void rGBToolStripMenuItem_Click(object sender, EventArgs e)
-        {/*
+        {
             
             if (img == null) // verify if the image is already opened
                 return;
@@ -488,11 +488,11 @@ namespace SS_OpenCV
             imgUndo = img.Copy();
 
             HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_RGB(img), 3);
-            histogramLines.ShowDialog(); */
+            histogramLines.ShowDialog(); 
         }
 
         private void allToolStripMenuItem_Click(object sender, EventArgs e)
-        {/*
+        {
            
             if (img == null) // verify if the image is already opened
                 return;
@@ -503,10 +503,8 @@ namespace SS_OpenCV
 
             HistogramLines histogramLines = new HistogramLines(ImageClass.Histogram_All(img), 4);
             histogramLines.ShowDialog();
-            */
+            
         }
-
-        
 
         private void dilatationToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -583,7 +581,7 @@ namespace SS_OpenCV
             imgUndo = img.Copy();
             //copy Image
             imgCopy = img.Copy();
-
+            
             int[][] projections;
             int[] vertical_projections, horizontal_projections;
             bool rotation_done = false;

@@ -1,4 +1,4 @@
-﻿/*namespace SS_OpenCV
+﻿namespace SS_OpenCV
 {
     partial class Histogram
     {
@@ -65,4 +65,4 @@
 
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
     }
-}*/
+}

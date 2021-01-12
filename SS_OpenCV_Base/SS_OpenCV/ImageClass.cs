@@ -413,6 +413,7 @@ namespace SS_OpenCV
             }
         }
 
+
         public static void Rotation(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float angle)
         {
             unsafe
@@ -1602,6 +1603,66 @@ namespace SS_OpenCV
             }
         }
 
+        public static void Rotation_Bilinear(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy, float angle)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer(); // Pointer to the image
+                MIplImage mCopy = imgCopy.MIplImage;
+                byte* dataPtrAux = (byte*)mCopy.imageData.ToPointer(); // Pointer to the image
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels; // number of channels - 3
+                int padding = m.widthStep - m.nChannels * m.width; // alinhament bytes (padding)
+                int x, y, i;
+                float xaux1, xaux2, final;
+                float j, k; //fatores(offsets) para a interpolação ==> tem que se dar valores?
+                double xf, yf;
+                int xfaux, yfaux;
+
+                if (nC == 3) // image in RGB
+                {
+                    for (y = 0; y < height; y++)
+                    {
+                        for (x = 0; x < width; x++)
+                        {
+                            xf = (((x - (width / 2.0)) * Math.Cos(angle)) - (((height / 2.0) - y) * Math.Sin(angle)) + width / 2.0);
+                            yf = ((height / 2.0) - ((x - (width / 2.0)) * Math.Sin(angle)) - (((height / 2.0) - y) * Math.Cos(angle)));
+
+                            j = (float)xf % 1;
+                            k = (float)yf % 1;
+
+                            xfaux = (int)(xf / 1);
+                            yfaux = (int)(yf / 1);
+
+                            if (xf < 0 || yf < 0 || xf >= width -1 || yf >= height -1)
+                            {
+                                (dataPtr + y * m.widthStep + x * nC)[0] = 255;
+                                (dataPtr + y * m.widthStep + x * nC)[1] = 255;
+                                (dataPtr + y * m.widthStep + x * nC)[2] = 255;
+                            }
+                            else
+                            {
+                                for (i = 0; i < 3; i++)
+                                {
+                                    xaux1 = ((1 - j) * (dataPtrAux + (yfaux) * m.widthStep + xfaux * nC)[i] + j * (dataPtrAux + yfaux * m.widthStep + (xfaux + 1) * nC)[i]);
+                                    xaux2 = ((1 - j) * (dataPtrAux + (yfaux + 1) * m.widthStep + xfaux * nC)[i] + j * (dataPtrAux + (yfaux + 1) * m.widthStep + (xfaux + 1) * nC)[i]);
+                                    final = (int)Math.Round((1 - k) * xaux1 + k * xaux2);
+                                    (dataPtr + y * m.widthStep + x * nC)[i] = (byte)final;
+                                }
+                            }
+
+
+
+
+                        }
+                    }
+                }
+
+            }
+        }
 
         // Morphological operation: Dilatation
         // Structure object (5x5 kernel) :
@@ -1637,19 +1698,25 @@ namespace SS_OpenCV
 
                         for (x = 2; x < (width - 2); x++)
                         {
-
+                            // mascara 5x5
                             if ((dataPtr_dest - nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * widthstep)[0] != 0 || (dataPtr_dest + nC - 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - 2 * widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC - widthstep)[0] != 0 || (dataPtr_dest - widthstep)[0] != 0 || (dataPtr_dest + nC - widthstep)[0] != 0 || (dataPtr_dest + 2 * nC - widthstep)[0] != 0 || (dataPtr_dest - 2 * nC - widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC)[0] != 0 || dataPtr_dest[0] != 0 || (dataPtr_dest + nC)[0] != 0 || (dataPtr_dest + 2 * nC)[0] != 0 || (dataPtr_dest - 2 * nC)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC + widthstep)[0] != 0 || (dataPtr_dest + widthstep)[0] != 0 || (dataPtr_dest + nC + widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
                                 (dataPtr_dest - nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * widthstep)[0] != 0 || (dataPtr_dest + nC + 2 * widthstep)[0] != 0 || (dataPtr_dest + 2 * nC + 2 * widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + 2 * widthstep)[0] != 0
                                 )
+                            /* mascara em cruz 5x5
+                            if ( (dataPtr_dest - 2 * widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC - widthstep)[0] != 0 || (dataPtr_dest - widthstep)[0] != 0 || (dataPtr_dest + nC - widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC)[0] != 0 || dataPtr_dest[0] != 0 || (dataPtr_dest + nC)[0] != 0 || (dataPtr_dest + 2 * nC)[0] != 0 || (dataPtr_dest - 2 * nC)[0] != 0 || (dataPtr_dest + 2 * nC + widthstep)[0] != 0 || (dataPtr_dest - 2 * nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest - nC + widthstep)[0] != 0 || (dataPtr_dest + widthstep)[0] != 0 || (dataPtr_dest + nC + widthstep)[0] != 0 ||
+                                (dataPtr_dest + 2 * widthstep)[0] != 0 
+                                )*/
                             {
                                 dataPtr[0] = (byte)(255);
                                 dataPtr[1] = (byte)(255);
                                 dataPtr[2] = (byte)(255);
                             }
-
 
                             dataPtr_dest += nC;
                             dataPtr += nC;
@@ -1664,7 +1731,62 @@ namespace SS_OpenCV
 
         public static void Erosion(Image<Bgr, byte> img, Image<Bgr, byte> imgCopy)
         {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
 
+                MIplImage m_dest = imgCopy.MIplImage;
+                byte* dataPtr_dest = (byte*)m_dest.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+
+                int x, y;
+
+                dataPtr += 2 * widthstep + 2 * nC;
+                dataPtr_dest += 2 * widthstep + 2 * nC;
+
+                if (nC == 3)
+                {
+                    for (y = 2; y < (height - 2); y++) // all but margins
+                    {
+
+                        for (x = 2; x < (width - 2); x++)
+                        {
+                            // mascara 5x5
+                            if ((dataPtr_dest - nC - 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * widthstep)[0] == 0 || (dataPtr_dest + nC - 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * nC - 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * nC - 2 * widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC - widthstep)[0] == 0 || (dataPtr_dest - widthstep)[0] == 0 || (dataPtr_dest + nC - widthstep)[0] == 0 || (dataPtr_dest + 2 * nC - widthstep)[0] == 0 || (dataPtr_dest - 2 * nC - widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC)[0] == 0 || dataPtr_dest[0] == 0 || (dataPtr_dest + nC)[0] == 0 || (dataPtr_dest + 2 * nC)[0] == 0 || (dataPtr_dest - 2 * nC)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC + widthstep)[0] == 0 || (dataPtr_dest + widthstep)[0] == 0 || (dataPtr_dest + nC + widthstep)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                                (dataPtr_dest - nC + 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * widthstep)[0] == 0 || (dataPtr_dest + nC + 2 * widthstep)[0] == 0 || (dataPtr_dest + 2 * nC + 2 * widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + 2 * widthstep)[0] == 0
+                                )
+                            /* mascara 5x5 (em cruz)
+                            if ((dataPtr_dest - 2 * widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC - widthstep)[0] == 0 || (dataPtr_dest - widthstep)[0] == 0 || (dataPtr_dest + nC - widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC)[0] == 0 || dataPtr_dest[0] == 0 || (dataPtr_dest + nC)[0] == 0 || (dataPtr_dest + 2 * nC)[0] == 0 || (dataPtr_dest - 2 * nC)[0] == 0 || (dataPtr_dest + 2 * nC + widthstep)[0] == 0 || (dataPtr_dest - 2 * nC + widthstep)[0] == 0 ||
+                               (dataPtr_dest - nC + widthstep)[0] == 0 || (dataPtr_dest + widthstep)[0] == 0 || (dataPtr_dest + nC + widthstep)[0] == 0 ||
+                               (dataPtr_dest + 2 * widthstep)[0] == 0
+                               )*/
+                            {
+                                dataPtr[0] = (byte)(0);
+                                dataPtr[1] = (byte)(0);
+                                dataPtr[2] = (byte)(0);
+                            }
+
+
+                            dataPtr_dest += nC;
+                            dataPtr += nC;
+
+                        }
+                        dataPtr_dest += padding + 4 * nC; // nC to gett out of the margin
+                        dataPtr += padding + 4 * nC;
+                    }
+                }
+            }
         }
 
 
@@ -1684,37 +1806,83 @@ namespace SS_OpenCV
         /// <returns>image with barcodes detected</returns>
         public static Image<Bgr, byte> BarCodeReader(Image<Bgr, byte> img, int type, out Point bc_centroid1, out Size bc_size1, out string bc_image1, out string bc_number1, out Point bc_centroid2, out Size bc_size2, out string bc_image2, out string bc_number2)
         {
-            int[][] projections;
-            int[] vertical_projections, horizontal_projections;
-
-            projections = Segmentation(img);
-            vertical_projections = projections[0];
-            horizontal_projections = projections[1];
-
-            float[] centroid = CalculateCentroid(img, vertical_projections, horizontal_projections);
-
             // first barcode
-            bc_image1 = "5601212323434";
-            bc_number1 = "9780201379624";
-            bc_centroid1 = new Point(130, 60);
-            //bc_centroid1 = new Point((int)centroid[0], (int)centroid[1]);
-            bc_size1 = new Size(200, 80);
+            bc_image1 = null;
+            bc_number1 = null;
+            bc_centroid1 = Point.Empty;
+            bc_size1 = Size.Empty;
 
             //second barcode
             bc_image2 = null;
             bc_number2 = null;
             bc_centroid2 = Point.Empty;
             bc_size2 = Size.Empty;
-            // draw the rectangle over the destination image
-            img.Draw(new Rectangle(bc_centroid1.X - bc_size1.Width / 2,
-            bc_centroid1.Y - bc_size1.Height / 2,
-            bc_size1.Width,
-            bc_size1.Height),
-            new Bgr(0, 255, 0), 3);
 
-            ProjectionsToBits(vertical_projections);
+            int[][] projections;
+            int[] vertical_projections, horizontal_projections;
+            bool rotation_done = false;
+            Point centroid;
+            string barcode_barras = "", barcode_digitos = "";
+            Image<Bgr, Byte> imgCopy = null;
 
-            return img;
+            imgCopy = img.Copy();
+
+            try
+            {
+                var angle = ImageClass.EixoMomento(img);
+
+                if (angle != 0)
+                {
+                    ImageClass.Rotation_Bilinear(img, imgCopy, (float)angle);
+                    rotation_done = true;
+                }
+
+                projections = ImageClass.Segmentation(img);
+                vertical_projections = projections[0];
+                horizontal_projections = projections[1];
+                var barcode_dimensions = ImageClass.BarcodeDimensions(vertical_projections, horizontal_projections);
+                
+                // barcode_dimensions[0] - barcode width
+                // barcode_dimensions[1] - barcode height
+                bc_size1 = new Size(barcode_dimensions[0], barcode_dimensions[1]);
+
+                centroid = ImageClass.LocateBarcode(imgCopy, vertical_projections, horizontal_projections, angle, barcode_dimensions);
+                bc_centroid1 = centroid;
+
+                if (rotation_done == false)
+                {
+                    var returnList = ImageClass.ProjectionsToBits(vertical_projections, horizontal_projections);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+                }
+                else
+                {
+                    var returnList = ImageClass.ConvertToBits(img, centroid);
+                    barcode_barras = ImageClass.DecodeDigits(returnList[0], returnList[1]);
+                }
+
+                bc_image1 = barcode_barras;
+
+                try
+                {
+                    barcode_digitos = ImageClass.ReadDigits(img, centroid, barcode_dimensions, horizontal_projections, angle);
+                    bc_number1 = barcode_digitos;
+
+                    if (barcode_digitos.Equals(barcode_barras))
+                        Console.WriteLine("Os CB coincidem.");
+                    else
+                        Console.WriteLine("Os CB não coincidem.");
+                }
+                catch
+                {
+                    Console.WriteLine("Erro ao ler os digitos.");
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Erro ao processar a imagem.");
+            }
+
+            return imgCopy;
 
         }
 
@@ -1763,57 +1931,11 @@ namespace SS_OpenCV
             }
         }
 
-        // verificar
-        public static float[] CalculateCentroid(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections)
+        // returns list
+        // returnList[0] - first_6_digits_projections used to decode barcode
+        // returnList[1] - second_6_digits_projections used to decode barcode
+        public static List<int[]> ProjectionsToBits(int[] vertical_projections, int[] horizontal_projections)
         {
-            unsafe
-            {
-
-                MIplImage m = img.MIplImage;
-                byte* dataPtr = (byte*)m.imageData.ToPointer();
-
-                int width = img.Width;
-                int height = img.Height;
-                int nC = m.nChannels;
-                int widthstep = m.widthStep;
-                int padding = m.widthStep - m.nChannels * m.width;
-                int x, y, i, num_x = 0, num_y = 0, den_x = 0, den_y = 0;
-                float c_x, c_y;
-                float[] centroid = new float[2];
-
-
-                for (i = 0; i < vertical_projections.Length; i++)
-                {
-                    num_x += vertical_projections[i] * i;
-                    den_x += vertical_projections[i];
-                }
-
-                for (i = 0; i < horizontal_projections.Length; i++)
-                {
-                    num_y += horizontal_projections[i] * i;
-                    den_y += horizontal_projections[i];
-                }
-
-                c_x = num_x / den_x;
-                c_y = num_y / den_y;
-                centroid[0] = c_x;
-                centroid[1] = c_y;
-
-                return centroid;
-
-            }
-
-        }
-
-        public static void ProjectionsToBits(int[] vertical_projections)
-        {
-
-            int counter = 0;
-            foreach (int p in vertical_projections)
-            {
-                Console.WriteLine("Projection " + counter + ": " + p);
-                counter++;
-            }
 
             int initial_position_1, final_position_1, initial_position_2, final_position_2;
             int pixels_per_bit = 0;
@@ -1822,17 +1944,18 @@ namespace SS_OpenCV
             int[] first_6_digits_projections;
             int[] second_6_digits_projections;
             int i, j;
+            var returnList = new List<int[]>();
 
             // ir até à primeira barra (percorrer o vertical segmentation e ir ignorando até encontrar um valor alto - nao basta ser zero pois temos um digito antes da 1ª barra) 
             // como definir este nr? *** por enquanto 50 ***
 
             // estamos na primeira barra. verificar quantos pixeis tem a primeira barra que vale 1 bit.
-
             i = 0;
             while (vertical_projections[i] < 50)
             {
                 i++;
             }
+            
 
             while (vertical_projections[i] > 50)
             {
@@ -1840,7 +1963,7 @@ namespace SS_OpenCV
                 i++;
             }
 
-            // para irmos para a primeira posicao dos 6 primeiros digitos temos que passar a 2ª barra inicial 
+            // para irmos para a primeira posicao dos 6 primeiros digitos temos que passar a 2ª barra inicial
             i += 2 * pixels_per_bit;
 
             first_6_digits_projections = new int[digits * bits * pixels_per_bit];
@@ -1900,8 +2023,162 @@ namespace SS_OpenCV
                 }
             }
 
-            DecodeDigits(first_6_digits_bits, second_6_digits_bits);
+            returnList.Add(first_6_digits_bits);
+            returnList.Add(second_6_digits_bits);
 
+            return returnList;
+
+        }
+
+        public static List<int[]> ConvertToBits(Image<Bgr, byte> img,Point centroid)
+        {
+            unsafe
+            {
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y, pixels_per_bit = 0, i=0, j;
+                int digits = 6;
+                int bits = 7;
+                int initial_position_1, final_position_1, initial_position_2, final_position_2;
+                var returnList = new List<int[]>();
+
+                dataPtr += widthstep * centroid.Y;
+
+                // dataPtr está a apontar para o pixel (0,centroid.Y)
+                // percorremos agora até ao fim para depois descodificarmos o codigo de barras
+                ConvertToBW_Otsu(img);
+
+                while (dataPtr[0]!=0)
+                {
+                    i++;
+                    dataPtr += nC;
+                }
+                while (dataPtr[0]==0)
+                {
+                    i++;
+                    pixels_per_bit++;
+                    dataPtr += nC;
+                }
+
+                pixels_per_bit = 2;
+
+                dataPtr += nC * 2 * pixels_per_bit;
+                i += 2 * pixels_per_bit;
+                
+                int[] first_6_digits_projections = new int[digits * bits * pixels_per_bit];
+                int[] second_6_digits_projections = new int[digits * bits * pixels_per_bit];
+
+                initial_position_1 = i;
+
+                final_position_1 = initial_position_1 + digits * bits * pixels_per_bit - 1;
+
+                for(j=0; i<= final_position_1; i++, j++)
+                {
+                    first_6_digits_projections[j] = dataPtr[0];
+                    dataPtr += nC;
+                }
+
+                i += 5 * pixels_per_bit;
+                dataPtr += nC * 5 * pixels_per_bit;
+                initial_position_2 = i;
+
+                final_position_2 = initial_position_2 + digits * bits * pixels_per_bit - 1;
+
+                for(j=0; i<= final_position_2; i++,j++)
+                {
+                    second_6_digits_projections[j] = dataPtr[0];
+                    dataPtr += nC;
+                }
+
+                int[] first_6_digits_bits = new int[digits * bits];
+
+                for (i = 0, j = 0; i < first_6_digits_projections.Length; i += pixels_per_bit, j++)
+                {
+
+                    if (first_6_digits_projections[i]==255)
+                    {
+                        first_6_digits_bits[j] = 0;
+                    }
+                    else
+                    {
+                        first_6_digits_bits[j] = 1;
+                    }
+                }
+
+                int[] second_6_digits_bits = new int[digits * bits];
+                for (i = 0, j = 0; i < second_6_digits_projections.Length; i += pixels_per_bit, j++)
+                {
+                    if (second_6_digits_projections[i]==255)
+                    {
+                        second_6_digits_bits[j] = 0;
+                    }
+                    else
+                    {
+                        second_6_digits_bits[j] = 1;
+                    }
+                }
+
+                returnList.Add(first_6_digits_bits);
+                returnList.Add(second_6_digits_bits);
+
+                return returnList;
+
+            }
+        }
+
+        // returns barcode_dimensions (int[])
+        // barcode_dimensions[0] - barcode_width
+        // barcode_dimensions[1] - barcode_height
+        public static int[] BarcodeDimensions(int[] vertical_projections, int[] horizontal_projections)
+        {
+            unsafe
+            {
+                int barcode_width = 0, barcode_height = 0;
+                int[] barcode_dimensions;
+                int i;
+                
+                for(i=0; i<vertical_projections.Length; i++)
+                {
+                    if(vertical_projections[i]!=0)
+                    {
+                        barcode_width -= i; // i - initial position of the barcode
+                        break; 
+                    }
+                }
+
+                for(i=vertical_projections.Length-1; i>=0; i--)
+                {
+                    if(vertical_projections[i]!=0)
+                    {
+                        barcode_width += i; // i - final position of the barcode
+                        break;
+                    }
+                }
+
+                for(i=0; i<horizontal_projections.Length; i++)
+                {
+                    if(horizontal_projections[i]!=0)
+                    {
+                        barcode_height -= i;
+                        break;
+                    }
+                }
+
+                while(horizontal_projections[i]!=0)
+                {
+                    i++;
+                }
+
+                barcode_height += i;
+                barcode_dimensions = new int[] { barcode_width, barcode_height };
+                return barcode_dimensions;
+            }
         }
 
         class DigitType
@@ -1910,7 +2187,7 @@ namespace SS_OpenCV
             public string Type { get; set; }
         }
 
-        public static void DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
+        public static string DecodeDigits(int[] first_6_digits_bits, int[] second_6_digits_bits)
         {
             // agora que temos todos os bits basta descodificar
             // crie-se um dicionario com toda a codificação de CB
@@ -1977,6 +2254,8 @@ namespace SS_OpenCV
             first_6_digits = digits_codification[bits.Substring(0, 7)].Digit;
             first_6_digits_type = digits_codification[bits.Substring(0, 7)].Type;
 
+            
+
             for (i = 7; i != 42; i += 7)
             {
                 digit = digits_codification[bits.Substring(i, 7)].Digit;
@@ -2007,10 +2286,316 @@ namespace SS_OpenCV
 
             bar_code_number = first_digit + first_6_digits + second_6_digits;
 
-            Console.WriteLine(bar_code_number);
+            Console.WriteLine("Descodificação pelas barras:  " + bar_code_number);
+            return bar_code_number;
 
         }
-    }
+
+        // receives the projections and angle and locates the barcode
+        // returns the centroid of the barcode
+        public static Point LocateBarcode(Image<Bgr, byte> img, int[] vertical_projections, int[] horizontal_projections, double angle, int[] barcode_dimensions)
+        {
+            unsafe
+            {
+
+                int i;
+                double cx=0, cy=0, area=0;
+                Point centroid;
+                int barcode_width = barcode_dimensions[0], barcode_height = barcode_dimensions[1];
+
+                for (i=0; i<vertical_projections.Length; i++)
+                {
+                    cx += (i+1) * vertical_projections[i];
+                    area += vertical_projections[i];
+                }
+                for(i=0; i<horizontal_projections.Length; i++)
+                {
+                    cy += (i+1) * horizontal_projections[i];
+                }
+
+                cx = cx / area;
+                cy = cy / area;
+
+                centroid = new Point((int)cx,(int)cy);
+
+                // se a imagem rodou, é necessário aumentar o barcode_width 1.2x e barcode_height 1.1x (tentativa e erro foram os valores que melhor se ajustaram)
+                if(angle!=0)
+                {
+                    cx += cx * 0.05;
+                    barcode_width = (int)(barcode_width * 1.2);
+                    barcode_height = (int)(barcode_height * 1.1);
+                }
+                else
+                {
+                    cy -= cy * 0.05;
+                    barcode_height = (int)(barcode_height / 1.2);
+                }
+                
+                MCvBox2D box_barcode = new MCvBox2D(new System.Drawing.PointF((float)cx,(float)cy), new System.Drawing.Size((int)(barcode_width), (int)(barcode_height)),(float)(angle*(-180/Math.PI)));
+                img.Draw(box_barcode, new Bgr(0, 0, 255), 2);
+
+                return centroid;
+            }
+        }
+
+        public static string ReadDigits(Image<Bgr,byte> img, Point centroid, int[] barcode_dimensions, int[] horizontal_projections, double angle)
+        {
+            unsafe
+            {
+                int i, y_inicial, y_final, x_inicial, x_final, altura_digitos, x, y;
+                bool break_flag = false;
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int padding = widthstep - nC * width;
+                int largura_area_digitos, altura_area_digitos;
+                string barcode;
+
+                for (i = horizontal_projections.Length - 1; i >= 0; i--)
+                {
+                    if (horizontal_projections[i] != 0)
+                    {
+                        break_flag = true;
+                        break;
+                    }
+                    if (break_flag)
+                        break;
+                }
+
+                y_final = i;
+                altura_digitos = (y_final - centroid.Y - barcode_dimensions[1] / 2) * 2;
+                y_inicial = y_final - altura_digitos;
+
+                y_inicial -= altura_digitos / 3; // limite superior
+                y_final += altura_digitos / 3; // limite inferior
+                altura_area_digitos = y_final - y_inicial + 1;
+
+                x_inicial = centroid.X - barcode_dimensions[0]/2 - altura_digitos; // limite esquerda
+                x_final = centroid.X + barcode_dimensions[0]/2 - altura_digitos; // limite direita
+                largura_area_digitos = x_final - x_inicial + 1;
+
+                // Temos os limites da zona dos digitos
+                // Agora temos que segmentar verticalmente esta zona para dividirmos em digitos
+                int[] proj_vertical_digitos = new int[x_final-x_inicial+1];
+
+                dataPtr += widthstep * y_inicial;
+                dataPtr += nC * x_inicial;
+
+                for(y=0; y<altura_area_digitos; y++)
+                {
+                    for(x=0; x<largura_area_digitos; x++)
+                    {
+
+                        if(dataPtr[0] == 0)
+                        {
+                            proj_vertical_digitos[x]++;
+                        }
+                        dataPtr += nC;
+                    }
+                    dataPtr += widthstep;
+                    dataPtr -= largura_area_digitos*nC;
+                }
+
+                int[] posicao_digitos = new int[34]; // a mudar
+                int[] limites_digitos = new int[18];
+                int[] limites = new int[14];
+                int j = 0;
+
+                for (i = 0; j<34; i++) {
+
+                    while (proj_vertical_digitos[i] == 0)
+                    {
+                        i++;
+                        //Console.WriteLine(i);
+                    }
+                    // encontra digito
+                    // i posicao inicial
+                    posicao_digitos[j] = i - 1;
+                    j++;
+
+                    while (proj_vertical_digitos[i] != 0)
+                    {
+                        i++;
+                    } // encontra espaço em branco
+
+                    //posicao_digitos[j] = i;
+                    j++;
+                }
+
+                posicao_digitos[j-1] = i;
+
+                i = 0;
+                foreach(int p in posicao_digitos)
+                {
+                    if(p!=0) // quanto i toma valores 1, 2, 9 e 10 temos que eliminar pois corresponde a uma proj != 0 mas que nao corresponde a um digito
+                    {
+                        limites_digitos[i] = p;
+                        i++;
+                    }
+                }
+
+                // quando i toma valores: 1, 2, 9 e 10 temos que elimir pois corresponde a uma proj != 0 mas que nao corresponde a um digito
+                i = 0;
+                j = 0;
+                foreach(int p in limites_digitos)
+                {
+                    if (i != 1 && i != 2 && i != 9 && i != 10)
+                    {
+                        limites[j] = p + x_inicial; // não esquecer de adicionar o x_inicial (assim ficamos logo com a posicao nas imagens)
+                        j++;
+                    }
+                    i++;
+                }
+
+                List<Image<Bgr, byte>> digitos_segmentados = new List<Image<Bgr, byte>>();
+                
+                for (i=0; i<limites.Length-1; i++)
+                {
+                    Image<Bgr, byte> segmento = img.Copy(new System.Drawing.Rectangle(limites[i], y_inicial, limites[i+1] - limites[i] + 1, y_final - y_inicial + 1));
+                    digitos_segmentados.Add(segmento);
+                }
+                barcode = CompareDigits(digitos_segmentados);
+                return barcode;
+            }
+        }
+
+        public static string CompareDigits(List<Image<Bgr, byte>> digitos_segmentados)
+        {
+            unsafe
+            {
+                int i,x,y,resto;
+                string digitos_lidos = "";
+
+                foreach(Image<Bgr,byte> segmento in digitos_segmentados)
+                {
+                    MIplImage d_segmentado = segmento.MIplImage;
+                    int width = d_segmentado.width, height = d_segmentado.height;
+                    int max = 0;
+                    string melhor_digito = "";
+
+                    for (i=0; i<50; i++)
+                    {
+
+                        string path = @"C:\\Users\\bruno\\Desktop\\SS-labs\\SS_OpenCV_Base\\Imagens\\digitos\\" + i.ToString() + ".png";
+                        //string path = @"C:\\Users\\hjoaquim\\Desktop\\SS\\SS_OpenCV_Base\\Imagens\\digitos" + i.ToString() + ".png";
+                        Image<Bgr, byte> digito_guardado = new Image<Bgr, byte>(path);
+                        Image<Bgr, byte> digito_guardado_rs = digito_guardado.Resize(width, height, Emgu.CV.CvEnum.INTER.CV_INTER_CUBIC);
+                        ConvertToBW_Otsu(digito_guardado_rs);
+
+                        MIplImage d_guardado = digito_guardado_rs.MIplImage;
+                        byte* dataPtrDigitoGuardado = (byte*)d_guardado.imageData.ToPointer();
+                        byte* dataPtrDigitoSegmentado = (byte*)d_segmentado.imageData.ToPointer();
+                        int padding = d_guardado.widthStep - d_guardado.nChannels * d_guardado.width;
+                        int nC = d_guardado.nChannels;
+                        int pixeis_iguais = 0;
+
+                        for (y=0; y<height; y++)
+                        {
+                            for(x=0; x<width; x++)
+                            {
+                                if(dataPtrDigitoGuardado[0]==dataPtrDigitoSegmentado[0] && dataPtrDigitoGuardado[1]==dataPtrDigitoSegmentado[1] && dataPtrDigitoGuardado[2] == dataPtrDigitoSegmentado[2])
+                                {
+                                    pixeis_iguais++;
+                                }
+
+                                dataPtrDigitoGuardado += nC;
+                                dataPtrDigitoSegmentado += nC;
+                            }
+                            dataPtrDigitoGuardado += padding;
+                            dataPtrDigitoSegmentado += padding;
+                        }
+
+                        if(pixeis_iguais > max)
+                        {
+                            max = pixeis_iguais;
+                            resto = i % 10;
+                            melhor_digito = resto.ToString();
+                        }
+
+                    }
+                    digitos_lidos += melhor_digito;
+                }
+
+                Console.WriteLine("Descodificação pelos numeros: " + digitos_lidos);
+                return digitos_lidos;
+            }
+        }
+
+        // returns angle in radians
+        // to-do: need to handle angles greater than 45 degrees
+        public static double EixoMomento(Image<Bgr, byte> img)
+        {
+            unsafe
+            {
+
+                MIplImage m = img.MIplImage;
+                byte* dataPtr = (byte*)m.imageData.ToPointer();
+
+                int width = img.Width;
+                int height = img.Height;
+                int nC = m.nChannels;
+                int widthstep = m.widthStep;
+                int heightstep = widthstep * height;
+                int padding = m.widthStep - m.nChannels * m.width;
+                int x, y;
+                double sx=0, sy=0, sxx=0, syy=0, sxy=0, mxx=0, myy=0, mxy=0, angle;
+                int area=0;
+                int[] proj = new int[width];
+
+                for (y = 0; y < height; y++)
+                {
+                    for (x = 0; x < width; x++)
+                    {
+                        if (dataPtr[0] == 0)
+                        {
+                            proj[x]++;
+                            sxy += (x+1) * (y+1);
+                            sx += x+1;
+                            sxx += Math.Pow(x+1, 2);
+                            sy += y+1;
+                            syy += Math.Pow(y+1, 2);
+
+                        }
+                        dataPtr += nC;
+                    }
+                    dataPtr += padding;
+                }
+
+                for (x = 0; x < proj.Length; x++)
+                    area += proj[x];
+
+                mxx = sxx - (Math.Pow(sx, 2) / area);
+                myy = syy - (Math.Pow(sy, 2) / area);
+                mxy = sxy - ((sx * sy) / area);
+
+                y = (int)(mxx - myy + Math.Sqrt(Math.Pow((mxx - myy), 2)) + 4 * Math.Pow(mxy, 2) / (2 * mxy));
+                angle = Math.Atan((mxx - myy + Math.Sqrt((mxx - myy) * (mxx - myy) + 4 * mxy * mxy)) / (2 * mxy));
+
+                angle = (angle * 180.0) / Math.PI;
+
+                if (angle < 0)
+                    angle = -(90 + (angle));
+                else
+                    angle = 90 - (angle);
+
+                // um angulo perto de zero arredonda-se para zero
+                if (angle > -1 && angle < 1)
+                    angle = 0;
+
+                angle *= Math.PI / 180;
+                angle *= -1;
+
+                return angle;
+
+            }
+
+        }
+
+
+    } 
 
 }
 
